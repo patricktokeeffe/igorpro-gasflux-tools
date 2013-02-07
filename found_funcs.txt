@@ -1,0 +1,138 @@
+Extracted functions 
+-------------------
+
+larguis.ipf
+-----------
+Function puFolderSwitch(pa) : PopupMenuControl 
+Function/S puSortOptionList()  								// popup#   value
+Function puSortOptionValue( puNum )
+Function/S SetMarqueeToNanMenu( bounds )
+Function SetMarqueeToNaN( bounds )
+Function/S ListFilesIn_Panel() : Panel
+Function ListFilesIn_HookProc(whs) 
+Function ListFilesIn_BtnProc(ba) : ButtonControl
+Function ListFilesIn_CBProc(cba) : CheckBoxControl
+Function ListFilesIn_LBProc(lba) : ListBoxControl
+Function ListFilesIn_PUProc(pa) : PopupMenuControl
+Function ListFilesIn_SVProc(sva) : SetVariableControl
+Function/S LoadLGR_Panel()
+Function/S LoadLGR_puModelList()
+Function/S LoadLGR_puBoptions( modelName )
+Function/S LoadLGR_puBstring( modelName, Boption )
+Function LoadLGR_HookProc(whs)
+Function LoadLGR_BtnProc(ba) : ButtonControl
+Function LoadLGR_CBProc(cba) : CheckBoxControl
+Function LoadLGR_LBProc(lba) : ListBoxControl
+Function LoadLGR_PUProc(pa) : PopupMenuControl
+Function LoadLGR_SVProc(sva) : SetVariableControl
+
+larlib.ipf
+----------
+Function/WAVE AddWaveRef( addref, wrefs, beforePoint )
+Function/WAVE AllDataFoldersHere(sortBy)
+Function/WAVE AllWavesHere(sortBy)
+Function BaleWaves( tstamp, wrefs, interval, aligned, formatTableName, destNameMask, destPath, overwrite)
+Function BankerRound( inVal, place, [toOdd] ) 
+Function/S BitString( var, howMany, [maxLen] )
+Function Cardinal2D( inStr )
+Function ClearBit( var, bit )
+Function ConcatAcrossDFRs( DFRlist, destPath, overwrite, kill, [wfilter] )
+Function CountNans( wname, [p1, p2] )
+Function Cov( wx, wy, [p1, p2])
+Function DensityOfAir( T_, P_ [, inMoles] )
+Function/WAVE DiagnoseCPC3776( diagWord, option )
+Function/WAVE DiagnoseCSAT3( diagWord, option )
+Function/WAVE DiagnoseLI7500( diagWord, option )
+Function DayOfWeek( tstamp )
+Function/WAVE DespikeHaPe( wname, tstamp [, multiplier, increment, passes, duration, p1, p2] )
+Function DewPoint( e_ )
+Function/S D2Cardinal( inVal )
+Function/WAVE DielAverage( wname, tstamp, mode)
+Function doy2sec( doy, year )
+Function ECLatentHeat( h2o, w_ [, T_, p1, p2] )
+Function ECSensibleHeat( T_, w_ , P_, Q_, [p1, p2] )
+Function/C EC_WPL80( meanRHOc, meanRHOv, meanRHOd, meanT, cov_w_rhoV, cov_w_T )
+Function/C EC_WPL80_TS( rhoC, rhoV, rhoD, T_, w_ [, p1, p2] )
+Function EstimateLag( baseWave, targetWave, keepResults )
+Function FlattenDir( pathName, recurse, overwrite, [fileFilter, kill] )
+Function FrictionVelocity( u_, v_, w_, [p1, p2] )
+Function/S GetDataFolderList( [seePkgs] )
+Function HasNans( wname, [p1, p2] )
+Function HasDuplicateDFRefs( dfrefs )
+Function HasDuplicateWRefs( wrefs )
+Function HaveNans( wrefs, [p1, p2] )
+Function/WAVE IntervalBoundaries(tstamp, interval, aligned) // not threadsafe, wave
+Function/WAVE IntervalCov( wx, wy, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalDespikeHaPe( wname, tstamp, interval, aligned [, multiplier, increment, passes, bp] )
+Function/WAVE IntervalECLatentHeat( h2o, w_, tstamp, interval, aligned [, T_, bp ] )
+Function/WAVE IntervalECSensibleHeat( T_, w_, P_, Q_, tstamp, interval, aligned [, bp ] )
+Function/WAVE IntervalEC_WPL80( rhoC, rhoV, rhoD, T_, w_, tstamp, interval, aligned [, bp] )
+Function/WAVE IntervalFrictionVelocity( u_, v_, w_, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalMaxPntsGone( wrefs, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalMean( wname, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalObukhovLength( u_, v_, w_, Tv, tstamp, interval, aligned [, bp] )
+Function/WAVE IntervalSdev( wname, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalTimestamps( tstamp, interval, aligned, edge, [bp] )
+Function/WAVE IntervalTKE( u_, v_, w_, tstamp, interval, aligned, [, bp] )
+Function/WAVE IntervaluvwRotation( uvwMatrix, type, tstamp, interval, aligned, [bp])
+Function/WAVE IntervalWindDirMardiaSdev( Ux, Uy, tstamp, interval, aligned, [bp] ) 
+Function/WAVE IntervalWindDirScalarMeanSdev( Ux, Uy, azimuth, flag, tstamp, interval, aligned, [bp] ) 
+Function/WAVE IntervalWindDirUnitVectorMean( Ux, Uy, azimuth, flag, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalWindDirVectorMean( Ux, Uy, azimuth, flag, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalWindDirYamartinoSdev( Ux, Uy, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalWindSpeedScalarMean( Ux, Uy, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalWindSpeedScalarHMean( Ux, Uy, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalWindSpeedScalarSdev( Ux, Uy, tstamp, interval, aligned, [bp] ) 
+Function/WAVE IntervalWindSpeedVectorMean( Ux, Uy, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalWindSpeedPersist( Ux, Uy, tstamp, interval, aligned, [bp] )
+Function LatentHeatVapH2O( T_ )
+Function LatLongDistance( lat1, long1, lat2, long2 )
+Function/S ListFilesIn( pathName, fileFilter, fileExt, recurse, sortBy) // not threadsafe, string
+Function/S ListDataFoldersIn( folder )
+Function LoadCSI( fileList, fileType, overwrite, convertTS, concat, options, [baseSFname, B])
+Function LoadLGR( fileList, modelName, overwrite, concat, resamp, options, [baseSFname, B] )
+Function MixingRatio( C_, T_, P_, h2o [, inMass] )
+Function MixingRatioMF( C_, T_, P_, MFw )
+Function MixingRatioVP( e_, P_ [, MW] )
+Function MoleFraction( C_, T_, P_ )
+Function/DF NewDataFolderX( destpath ) // not threadsafe, df
+Function/S NewProgressWindow()
+Function ObukhovLengthTS( u_, v_, w_, Tv [, p1, p2] )
+Function ObukhovLength( frictionVelocity, meanTv, cov_w_Tv )
+Function PotentialTemp( T_, P_ [, P0 ] )
+Function/DF PromptSetDataFolder() // not threadsafe, df
+Function/S PromptForFileList( msg ) // not threadsafe, string
+Function RelativeHumidity( e_, T_ )
+Function RemoveNansW( wrefs )
+Function RemoveWaveRef( remref, wrefs )
+Function ReplaceWaveValues(wrefs, withVal, mode, val1, val2, [p1, p2])
+Function ResampleXY( tstamp, wrefs , newRate )
+Function SatVP( T_ )
+Function SpecificHumidity( R_ )
+Function SpecificHumidityVP( e_, P_ )
+Function/S StringFromMaskedVar(maskStr, inVal, [fixNNwidth]) // not threadsafe, string
+Function string2secs( timestring, format ) // not threadsafe, string
+Function/S TimeRegEx( choice ) // not threadsafe, string
+Function TKE( u_, v_, w_ [, p1, p2] )
+Function/S UnzipArchive( srcFileStr, destFolderStr, overwrite, flatten )
+Function/S UnzipArchivesInList( fileList ) 
+Function UpdateProgressWindow( name, val1, val2, [msg, noKill] )
+Function/WAVE uvwRotation( uvwMatrix, type )
+Function VirtualTemp( T_, R_ )
+Function VirtualTempVP( T_, e_, P_ )
+Function/WAVE WaveList2Refs( wlist, makeFreeCopies )
+Function/S WaveRefs2List( wrefs, fullName )
+Function/C WindDirScalarMeanSdev( Ux, Uy, azimuth, flag, [p1, p2] )
+Function WindSpeedPersist( Ux, Uy, [p1, p2] )
+
+sandbox.ipf
+-----------
+Function LoadPicarro( fileList, modelName, overwrite, concat, tsconv, options, [baseSFname, B] )
+Function ProgressWindowTest(indefinite)
+Function PromptedUnzipArchive()
+Function PromptedLoadCSI( [type] )
+Function PromptedLatLongDistance()
+Function KillThenMove( src, dest )
+Function LoadNMEA( [fileList])
+Function windArrowTimeSeries_tb( [windDirW, windSpdW, timeW, minArrowLen, maxArrowLen, zeroOption, prefix] )
+Function showArrowMarkerCmd_tb()

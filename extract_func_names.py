@@ -1,0 +1,33 @@
+﻿# -*- coding: utf-8 -*-
+"""
+Extract function definitions from indicated files
+
+@author Patrick O'Keeffe <pokeeffe@wsu.edu
+
+Created Thu Feb 7 2012
+"""
+
+import sys
+
+
+if __name__ == "__main__":
+    filelist = sys.argv[1:]
+
+    results = open('found_funcs.txt', 'w')
+    results.write('Extracted functions \n-------------------\n')    
+    
+    for each in filelist:
+        if not each.endswith('.ipf'):
+            print ("File '%s' is not an Igor Pro function file. Skipping..."
+                    % each)
+        print ("Extracting function definitions from '%s' ... " % each),
+        num_found = 0
+        ffile = open(each, 'r')
+        results.write('\n' + each + '\n' + ('-'*len(each)) + '\n')
+        for line in ffile:
+            if line.startswith('Function'):
+                num_found += 1
+                results.write(line)
+        print "found %u functions" % num_found
+
+
