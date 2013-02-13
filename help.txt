@@ -1,0 +1,731 @@
+•	Laboratory for Atmospheric Research Package (13.2)
+
+•	Overview
+larpkg is a collection of Igor Pro functions focusing on time series, atmospheric fluxes, meterological parameters, and handling of a few less common scientific data formats. While some functions are decidedly narrow in focus, many are general and would be useful in other contexts. Most higher-level functions come with a host of optional arguments - it's usually worth your time to know what they do!
+•	Installation
+•	Additional Resources 
+•	Bitwise Functions
+•	Files and Folders
+•	Igor Functions
+•	Interval Operands
+•	Statistics
+•	Time
+•	Truth Tests
+•	Wind
+•	LAR Package Reference
+
+•	Installation
+larpkg is available as a compressed archive (.7z or .zip) which can be extracted using your favorite file archive utility. The archive directory structure looks like this:
+larpkg-<version>.7z\
+	bin\
+		cmdutils\	Collection of open-source Windows utilities
+			...
+		7zip920.exe 	Installation binary for open-source archive utility 7-zip version 9.2
+	larpkg Help.ihf 	This help file, compiled for use with Igor Pro
+	larpkg Help.pdf 	This help file, printed to PDF/A format for reading without Igor Pro
+	larguis.ipf 	Procedure file containing optional graphical user interfaces
+	larlib.ipf 	Procedure file containing core function set
+
+Dependencies
+The following procedure files are activated by larpkg because they possess functionality it depends on. It is not necessary to install these files -- they are included with Igor Pro.
+•	RemovePoints (WaveMetrics Procedures:Data Manipulation:) 
+
+Licensing
+Presently, larpkg is unlicensed. The developer expects to have approval to apply the open-source MIT license retroactively so for all intents and purposes, consider larpkg to be licensed under the MIT license [http://mit-license.org/].
+CmdUtils is licensed under the General Public License version 2 (GPLv2) available online at http://www.gnu.org/licenses/gpl-2.0.html, also in the included file \bin\cmdutils\GPL.txt. 
+7-Zip is licensed under the 7-Zip license, available online at http://www.7-zip.org/license.txt, also in the text file licenses.txt.
+
+Temporary Install
+Opening the procedure files and selecting 'Macros > Compile' is sufficient to use the functions in larpkg. Be aware, however, that if you write procedures which use functions from larpkg and fail to reopen the procedure file next time the experiment is opened, your procedure will not compile until the relevant larpkg procedure file is opened as well. 
+
+Per-experiment Install (Adoption)
+There are several reasons you might want to use this package on a per-experiment basis, for example:
+•	You rarely use larpkg but remembering to load it with certain experiments is a pain
+•	You frequently share experiments with users who do not have/want larpkg permanently installed
+•	You explicitly archive all procedures (perhaps for auditing purposes) and do not want any ambiguity introduced by using linked files or do not want to track and archive specific versions of larpkg. 
+•	You have made changes to larpkg for use with a specific experiment and do not want to retain those changes otherwise. 
+
+To achieve a standalone or per-experiment installation, open the procedure file and give it active focus either by clicking on it or selecting it from 'Windows > Procedure Windows', then select 'File > Adopt Procedure'. More information about this is provided in the help topic Adopting a Procedure File. 
+
+Permanent
+If you intend to use larpkg frequently and would prefer it open automatically each time Igor Pro loads, it can be installed as a 'global' procedure file. First, extract the archive somewhere. The location is not very important although network users may find it advantageous to store one shared copy on the network instead of several across workstations. Place a shortcut/alias to the extracted archive directory in the "WaveMetrics/Igor Pro User Files/Igor Procedures" folder inside your user's Documents directory. See help topics Global Procedure Files and Igor Pro User Files for more information. 
+
+•	Additional Resources
+Don't overlook the fact that Igor Pro doesn't have everything activated upon installation! These resources are listed for informational purposes only and do not constitute endorsement of any particular package.
+Other built-in functions
+Some of the other built-in packages you may want to activate include:
+•	RosePlot (WaveMetrics Procedures:Graphing:)
+•	New Polar Graphs (WaveMetrics Procedures:Graphing:New Polar Graph Procedures:) 
+•	VDT, for Data Logger package (More Extensions:Data Acquisition)
+•	WildPoint (More Extensions:Data Analysis:)
+•	MLLoadWave (More Extensions:File Loaders:)
+•	TDM, for loading LabView files (More Extensions:File Loaders:)
+•	IgorThief, for extracting data from scanned graphs (WaveMetrics Procedures:File Input Output:)
+
+Third-party extensions and snippets
+WaveMetrics maintains an online repository of packages, the IgorExchange (igorexchange.com), where users can exchange code snippets and full-blown packages. 
+Some interesting projects/snippets include:
+•	DAQ Procedures -- GPIB, NIDAQmx, traditional NIDAQ, serial port, and VISA 
+•	easyHTTP -- Connectivity to the internet, http/ftp/etc
+•	Time-Frequency Toolkit -- For investigating time-frequency domain of time series
+•	ADWU 1.0.ipf -- Download weather data based on airport codes (requires easyHTTP)
+•	Progress window.ipf -- Dislpay a pop-up progress window for long computations
+•	simple_spectral.ipf -- functions for spectra-related computations 
+
+•	Bitwise Functions
+There are several functions designed to make bitwise operations more clear. The relevant Igor help topic is Using Bitwise Operators. Reading specific flags from an instrument's diagnostic code is one example of where these functions could be applied.
+BitString, ClearBit, SetBit, ShiftBit, TestBit
+
+•	Files and Folders
+This group includes functions to load and export data from a variety of common formats, as well as to manipulate the underlying file system to make handling data files easier. A utility to load waves from compressed archives without manually extracting them is under development, too.
+BaleWaves, ListFilesIn, LoadCSI, PromptForFileList 
+
+	BaleWaves, 
+	ListFilesIn, 
+	LoadCSI, 
+	LoadDLT100, 
+	LoadG1103, 
+	LoadG2301, 
+	LoadNMEA, 
+	PromptForFileList, 
+	UnzipArchive, 
+	UnzipArchivesInList, 
+
+•	Igor Functions
+These functions came about to accomplish some specific, but universal kind of task in Igor Pro.
+AllFoldersHere, AllWavesHere, BatchRemoveNans, CountNans, MinFieldWidth, NewDataFolderX, PromptChooseFolder, RemoveBlanks, StringFromMaskedVar 
+
+
+	AllFoldersHere, 
+	AllWavesHere, 
+	BatchRemoveNANs, 
+	CountNans, 
+	MinFieldWidth, 
+	NewDataFolderX, 
+	PromptSetDataFolder, 
+	RemoveBlanks, 
+	StringFromMaskedVar, 
+
+•	Interval Operands
+The interval operators are intended for analyzing time series in consecutive, adjacent, identically sized subintervals. Sliding windows are not currently available, nor are they planned. The basic options are interval size, in seconds, and aligned/not aligned from midnight with respect to interval size. 
+	With an interval of 30min and initial timestamp of 10:08:24, then if
+		• aligned is zero, the first output period starts at 10:08:24
+		• aligned is non-zero, the first output period starts at 10:00:00
+In general, results are provided as a wave reference; see Free Waves. This puts the onus on the user to explicitly save their results using Duplicate or MoveWave. A few more complex functions both modify source waves and return results; this is made explicit in the reference when true. 
+IntervalBoundaries, IntervalCov, IntervalDespikeHaPe, IntervalECLatentHeat, IntervalECSensibleHeat, 
+IntervalEC_WPL80, IntervalFrictionVelocity, IntervalMaxPntsGone, IntervalMean, IntervalObukhovLength, 
+IntervalSdev, IntervalTimestamps, IntervalTKE, IntervaluvwRotation, IntervalWindDirMardiaSdev, 
+IntervalWindDirScalarMeanSdev, IntervalWindDirUnitVectorMean, IntervalWindDirVectorMean, 
+IntervalWindDirYamartinoSdev, IntervalWindSpeedScalarMean, IntervalWindSpeedScalarHMean, 
+IntervalWindSpeedScalarSdev, IntervalWindSpeedVectorMean, IntervalWindSpeedPersist
+
+•	Statistics
+These supplement the built-in math and statistics functions. 
+BankerRound, Cov
+
+•	Time
+Time is a very important consideration. It can make up to half of the data. 
+IsntChronological, serial2secs, string2secs, TimeIntervalBoundaries, TimeRegEx
+
+•	Truth Tests
+These functions all return the true/false truth of some specific condition.
+HasDuplicateDFRefs, HasDuplicateWRefs, HasNans, NotAllSameLength, SameNumPnts, SameXscaling 
+
+	HasDuplicateDFRefs, 
+	HasDuplicateWRefs, 
+	HasNANs, 
+	SameNumCols, 
+	SameNumChunks, 
+	SameNumLayers, 
+	SameNumPnts, 
+	SameNumRows, 
+	SameXscaling, 
+	NotAllSameLength, 
+
+•	Wind
+Handling components of wind is a routine part of atmospheric research. This set of common calculations and conversions will make dealing with wind less onerous. 
+Cardinal2D, D2Cardinal, D2R, ModWD, R2D, uvwRotation, WindDir, WindDirMardiaSdev, WindDirScalarMeanSdev, WindDirUnitVectorMean, WindDirYamartinoSdev, WindSpeed, WindSpeedScalarMean, WindSpeedScalarHMean, WindSpeedVectorMean, WindSpeedPersist, 
+
+	Cardinal2D, 
+	D2Cardinal, 
+	D2R, 
+	ModWD, 
+	R2D, 
+	WindDir, 
+	WindDirMardiaSdev, 
+	WindDirScalarMeanSdev, 
+	WindDirUnitVectorMean, 
+	WindDirVectorMean, 
+	WindDirYamartinoSdev, 
+	WindSpeed, 
+	WindSpeedScalarMean, 
+	WindSpeedScalarHMean, 
+	WindSpeedScalarSdev, 
+	WindSpeedVectorMean, 
+	WindSpeedPersist, 
+
+
+
+
+==========================================================================
+•	LAR Package Reference
+
+AllDataFoldersHere( sortBy )
+Returns wave of data folder references to all data folders in the current data folder, sorted according to the value of sortBy. All folders named Packages are omitted.
+type is a literal number which controls the sorting method:
+-1:No sort (effectively sorts by creation date)
+0:	Default sort (ascending case-sensitive alphabetic ASCII sort)
+1:	Descending sort
+2:	Numeric sort
+4:	Case-insensitive sort
+8:	Case-sensitive alphanumeric sort using system script
+16: Case-insensitive alphanumeric sort that sorts wave0 and wave9 before wave10.
+or a bitwise combination of the above with the following restriction: only one of 2, 4, 8, or 16 may be specified. The legal values are thus -1, 0, 1, 2, 3, 4, 5, 8, 9, 16, and 17. Other values will produce undefined sorting criteria. 
+Examples
+function baz()
+	wave/DF w = AllFoldersHere()
+	variable i
+	for (i=0; i<numpnts(w); i+=1)
+		print i, DataFolderDir(2, w[i])
+	endfor
+end
+See Also:
+SortList, AllWavesHere
+
+AllWavesHere( sortBy )
+Returns wave of references to all waves in the current data folder, sorted according to sortBy, which is a literal number controlling the sorting method:
+-1: No sort (effectively sorts by creation date)
+0:	Default sort (ascending case-sensitive alphabetic ASCII sort)
+1:	Descending sort
+2:	Numeric sort
+4:	Case-insensitive sort
+8:	Case-sensitive alphanumeric sort using system script
+16: Case-insensitive alphanumeric sort that sorts wave0 and wave9 before wave10.
+or a bitwise combination of the above with the following restriction: only one of 2, 4, 8, or 16 may be specified. The legal values are thus 0, 1, 2, 3, 4, 5, 8, 9, 16, and 17. Other values will produce undefined sorting criteria.
+See Also:
+WaveList, SortList, WAVE References
+
+BaleWaves( tstamp, refw, interval, options, formatTableName, destNameMask, destPath )
+The BaleWaves function writes each subinterval of the waves included in refw to a comma separated file. One file is generated for each interval. 
+**this documentation is predated!**
+Parameters
+tstamp is a double precision wave of sequential timestamps. It should not contain any empty values (NAN). 
+refw is a wave of wave references to include in the output file. If a timestamp column is desired, then tstamp should also be the first element of refw. The order of refw determines left-to-right order of columns in the output file. 
+interval is the length, in seconds, of each output file. 
+options is a literal number representing various bit combinations of:
+Bit #	Bit Value	Option
+1
+formatTableName is a string containing the name of an existing table which reflects the desired formatting for each column. Formatting is copied according to column number so the order in this table should be the same as in refw. 
+destNameMask is a string file name mask following the same field code conventions as StringFromMaskedVar. A file extension should be included since none is appended. If no field code is used to distinguish output files, it is likely each file will overwrite the last and only the final file will remain. 
+destPath is a string containing a fully-qualified path to the desired output directory, or an empty string ("") to cause a prompt. 
+Details
+The order of columns is determined by the order of waves in refw. The formatting of each column is copied from an existing table named formatTableName. If the table is not found, then -1 is returned.
+The size of the interval is specified, in seconds, by interval. If aligned is nonzero, then intervals will start/stop on whole multiples of the interval counting from midnight; the default (0) is to start/stop relative to the value of tstamp[0]. 
+If overwrite is a positive non-zero value, files with conflicting names will be overwritten without prompt. A value of zero will result in a Save As.. prompt if file names conflict. Negative non-zero values are reserved for future use. 
+See Also:
+SaveTableCopy, SaveData, Save, Tables
+
+BankerRound( inVal, place [, toOdd] )
+Rounds a numerical expression inVal to decimal column represented by 10^place using round-to-even rules. A nonzero value for optional parameter toOdd will cause round-to-odd behavior instead, if desired.
+Details
+Under normal conventions, the remainder one-half (0.5) is rounded upwards to the next whole number but this operation is not symmetric and such rounding can introduce an upwards bias, especially in large data sets. One solution is to round one-half towards the nearest even integer, resulting in equal probabilities the rounding will occur upwards versus downwards. 
+This is the default rounding mode used in IEEE 754 computing functions and operators. 
+Examples
+foovar = BankerRound(foovar, 0)  // round to integer (10^0=1s)
+foovar = BankerRound(foovar, 3)  // round to thousands (10^3=1000s)
+wave0 = BankerRound( wave0[p], 3)  // round whole wave to thousands
+References
+Rounding <https://secure.wikimedia.org/wikipedia/en/wiki/Banker%27s_rounding>
+See Also:	
+round, trunc, floor, ceil
+
+BatchRemoveNans( refw )
+Removes NANs from waves while preserving correct alignment of values across rows. 
+Details
+Checks each wave in refw for NAN values and, if found, removes that row from each wave in refw. The operation is performed so the alignment of data values remains consistent. This may be an important consideration when preparing sets of XY data for operations which do not accept NAN (such as Mean).
+See Also:	
+RemoveNaNs
+
+BitString( var, howMany [, maxLen] )
+Returns a string representation of howMany bits in var, starting with the least significant bit, written from right to left in 4 digit groups. 
+Details
+Since bitwise operations only make sense on integers, var is treated as one. 
+The default behavior is to limit howMany to between 1 and 32 bits. Since most variables cannot hold more information, this makes sense but the optional parameter maxLen is provided as a way to bypass this if desired.
+Examples
+print WriteBits(21, 8)		//  0001 0101  
+print WriteBits(3021, 8)	//  1100 1101  
+print WriteBits(1+2+4, 4)	//  	  0111 
+print WriteBits(1+2+4, 6)	//    00 0111 
+See Also:	
+Using BitWise Operators, ClearBit, SetBit, ShiftBit, TestBit
+
+Cardinal2D( inStr )
+Returns numeric interpretation of cardinal wind direction (NW, S, SSE) in string inStr or returns NAN if inStr is not understood. 
+Details
+The comparison to inStr is done case-insensitive with trailing spaces removed. Acceptable combinations of cardinal wind direction include, going clockwise:
+N, NNE, NE, ENE, E, ESE, SE, SSE, S, SSW, SW, WSW, W, WNW, NW, NNW
+Tip
+This function can be used effectively in a wave assignment:
+Make/N=(numpnts(cardWD)) numWD = Cardinal2D(cardWD[p]) // one fell swoop
+See Also:	
+D2Cardinal, D2R, R2D, Wave Assignment
+
+ClearBit( var, bit )
+Returns var with bit number bit set to zero. Bit numbering is zero-indexed. 
+Details
+Since bitwise operators only make sense on integers, var is treated as one and an integer is returned.
+This is basically a wrapper for the bitwise complement (~) followed by the bitwise AND (&). It was derived from the example under Using Bitwise Operators. 
+See Also:	
+SetBit, ShiftBit, TestBit, BitString
+
+CountNans( theWave )
+Returns the total number of NANs in theWave. 
+See Also:	
+NAN, numtype
+
+Cov( wx, wy [, p1, p2 ] )
+Returns the covariance of waves wx and wy. If these waves are different lengths or contain empty values (NANs) then NAN is returned. The covariance is computed as
+
+A point subrange may be specified using optional parameters p1 and p2.
+See Also:	
+IntervalCov, Mean, Variance
+
+D2Cardinal( inVal )
+Returns string containing the nearest cardinal wind direction (NW, S, SSE) to inVal, which is wrapped into the range of 0 <= inVal < 360. Valid output wind directions include:
+N, NNE, NE, ENE, E, ESE, SE, SSE, S, SSW, SW, WSW, W, WNW, NW, NNW
+Tip
+This function could be used effectively in a wave assignment:
+Make/N=(numpnts(WD)) labels = D2Cardinal( WD[p] ) 	// maybe for a graph
+See Also:	
+Cardinal2D, D2R, R2D, Wave Assignment
+
+D2R( inVal )
+Returns inVal after converting from degrees to radians. Useful in wave assignments.
+See Also:	
+R2D, Cardinal2D, D2Cardinal, Wave Assignment
+
+HasDuplicateDFRefs( refw )
+Returns the element number of the first duplicate data folder reference in wave refw. If no duplicates are found, 0 is returned.
+See Also:	
+DataFolderRefsEqual
+
+HasDuplicateWRefs( refw )
+Returns the element number of the first duplicate wave reference in wave refw. If no duplicates are found, 0 is returned.
+See Also:	
+WaveRefsEqual
+
+HasNans( wname )
+Returns the element number of the first NAN found in wname or 0 if none are found. The special case of wname[0] = NAN returns -1. 
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
+IntervalBoundaries( tstamp, interval, aligned )
+Returns a wave describing the starting point of each subinterval of length interval in tstamp. If tstamp has empty fields or out-of-order elements, NAN is returned.
+Parameters
+tstamp is a double-precision wave, ordered chronologically, without empty fields (NANs)
+interval is the length of subinterval, in seconds
+If aligned is zero, the first subinterval begins at the value of tstamp[0] and the following subintervals start at tstamp[0]+interval * n where n increments for each following interval. If aligned is nonzero, subintervals start on whole multiples of the interval starting from the previous midnight.
+Details
+The wave tstamp is checked to ensure chronological order; if it fails this check, the value NAN is returned. 
+The lower boundary of the first interval is taken as tstamp[0]. If aligned is nonzero, the upper boundary of the first interval is set to the next whole multiple of interval after the lower boundary; otherwise, the upper boundary is the lower boundary plus interval. Values in tstamp are compared to the upper boundary and when the next row value is >= upper boundary (or doesn't exist, ie. end of wave), the row corresponding to the lower boundary is recorded. The lower boundary is then set equal to the upper boundary, the upper boundary is recomputed and the procedure continues. 
+Examples
+Function seehalfhours()
+	wave timestamp
+	wave/D w = TimeIntervalBoundaries(timestamp, 30*60, 1)
+	variable i
+	for (i=0; i<DimSize(w,0); i+=1)
+		string t1 = secs2time(timestamp[ w[i][%lo] ],3,1) // to fit on 1 print line
+		string t2 = secs2time(timestamp[ w[i][%hi] ],3,1)
+		print/D "Interval",i,"Points",w[i][%lo],"-",w[i][%hi],"Time",t1,"-",t2
+	endfor
+End
+Which produces output similar to:
+  Interval  0  Points  0  -  13043  Time  12:08:15.6  -  12:29:59.9
+  Interval  1  Points  13044  -  31043  Time  12:30:00.0  -  12:59:59.9
+  Interval  2  Points  31044  -  49043  Time  13:00:00.0  -  13:29:59.9
+	...
+  Interval  525  Points  9445044  -  9463043  Time  10:30:00.0  -  10:59:59.9
+  Interval  526  Points  9463044  -  9481043  Time  11:00:00.0  -  11:29:59.9
+  Interval  527  Points  9481044  -  9490026  Time  11:30:00.0  -  11:44:58.2
+See Also:	
+some other function
+
+IntervalCov( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalMean( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervaluvwRotation( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IsntChronological( wname )
+Returns the row number of the first element of wname to violate chronological order or of the first empty field (NAN), otherwise returns false (0). Special case of wname[0]=NAN returns -1.
+Examples
+If ( IsntChronological(timestamp) ) 
+	// fix the wave or complain to user and quit
+endif
+See Also:	
+Sort, RemoveNaNs, BatchRemoveNaNs
+
+ListFilesIn( pathName, fileFilter, fileExt, recurse, sortBy )
+The ListFilesIn function returns a semicolon separated list of all the files in pathName with extensions matching fileExt, optionally searching subfolders and sorting file/folder names. 
+Parameters
+pathName is a string containing the name of an existing path as might be created using NewPath or choosing Misc.->New Path... from the Igor menus. 
+fileFilter is a string containing a regular expression which returned file names must match or a zero-length string ("") to match all files. The format of the regular expression is the same as for Grep and GrepList. See Regular Expressions for more details.
+fileExt is a string, up to four-characters, specifying the extension of the file type to list or "????" to list all file types. See the extension parameter of IndexedFile for more details.
+recurse is a variable indicating maximum level of depth to use while searching subfolders. If its value is zero, no subfolders are searched. A positive integer n will result in n levels of subfolders being searched in a recursive manner; a negative integer will result in a search of all levels.
+sortBy is a variable specifying the sort mode to apply: a value of -1 will sort files and folders according to creation date while other valid values are identical to options in SortList. 
+See Also:
+IndexedFile, IndexedDir, NewPath, SortList, File Types and Extensions, ParseFilePath, Path Seperators, Regular Expressions
+
+LoadCSI( fileList, fileType, overwrite, convertTS, options [, baseSFname] ) 
+The LoadCSI function loads data from one or more Campbell Scientific Loggernet files into  Igor waves and, optionally, converts string timestamps into their double-precision representation. 
+If successful, 0 is returned; otherwise, -1 is returned.
+Details
+The string fileList contains a semicolon-separated list of full file paths (as might be returned by PromptForFileList or ListFilesIn). Each file is loaded assuming the first column contains quoted timestamps and subsequent columns contain numeric data. Most of the time this is desired since Campbell places quotes around NANs and a forced numeric load prevents columns beginning with NAN from being interpreted as text. If the data file contains a legitimate text column, such as a log file might, then LoadCSI will not work for your situation.
+If the list contains one file, all waves are loaded into the current directory; otherwise, one subfolder will be created in the current directory for each file. Subfolder creation can be forced for a single-item fileList using bit 5 of options. If subfolders are created, the name of each is derived from a strict cleanup of each file name. In the event many identically-named files are loaded, the name of each file's parent folder can be used instead by setting bit 2 of options. 
+authors note: explore and describe what happens if multiple files are loaded from the same directory and the subfolder names are set to file's parent subfolder. does behavior change in combination with overwrite/skip parameters?
+maybe add a convert variable since it's so common to want to do and not quite the same as the subfolder arguments
+Using bit 3 of options and optional parameter baseSFname provides a third, independent method of specifying subfolder names. In this case, each subfolder is given the name returned by StringFromMaskedVar(baseSFname, <index>, fixNNwidth=<minWidth>) where  <index> is the zero-based index of the current file in fileList, <minWidth> is automatically set to the shortest necessary field width, and baseSFname is, by default, "loadCSI_file\nn". 
+If you use bit 3 and change baseSFname, do not forget to include a field code or the same subfolder name will be generated for each file. Depending on combinations of other settings, this could result in each new file overwriting the last, only the first file loading or some other, undefined behavior.
+fileType specifies the file format. Presently, only two file tyes are supported.
+	0:	TOA5: long (4-line) header 
+	1:	TOACI1: short (2-line) header
+	2:	TOB1: table-oriented binary [**not implemented**]
+	3:	TOB2: table oriented binary [**not implemented**]
+	4:	TOB3: table-oriented binary [**not implemented**]
+	5:	CSIXML: extensible markup language [**not implemented**]
+If overwrite is nonzero, existing subfolders and waves will be overwritten; otherwise, unique names will be used. Setting bit 4 of options will cause a file to be skipped if the target subfolder already exists, rather than creating a unique subfolder. This could speed up loading new data into an existing experiment. 
+options is a bitwise combination controlling several auxilary options. See Setting Bit Parameters for details about bit settings.
+Bit 0:	1	Convert loaded timestamps into an Igor date/time wave named "timestamp". Since Campbell Scientific places double-quotes around timestamps, it is not possible to load them directly as Igor date/time values. 
+Bit 1: 	2	Keep the original string timestamp wave, renamed "timestamp_STR". This bit is ignored if Bit 0 is not set.
+Bit 2: 	4	Derive subfolder names from file's parent folder name instead of using file's name.
+Bit 3: 	8	Derive subfolder names from baseSFname and the file's index # in fileList. See above and StringFromMaskedVar for details.
+Bit _:	16	will be reserved for concatenation method 
+Bit _: 	32	will be reserved for something else
+Bit 4: 	64 	Skip existing subfolders instead of generating unique name when overwrite is false.
+Bit 5: 	128 	Force individual files to load in subfolders as if fileList contained multiple items.
+The above bits may be combined with these exceptions: 
+	- if bit 0 is not set, bit 1 is ignored
+	- if bit 2 is set, bit 3 is ignored
+	- if overwrite is true, bit 4 is ignored
+See Also:	
+LoadWave, Setting Bit Parameters
+
+MinFieldWidth( num )
+Returns the minimum number of fields necessary to hold the absolute value of integer num. 
+Examples
+print MinFieldWidth( 0 )		// 0		
+print MinFieldWidth( 0.5 )		// 0		fractional portions are ignored
+print MinFieldWidth( 2 )		// 1		
+print MinFieldWidth( -2 )		// 1		negative signs are ignored
+print MinFieldWidth( 1000 )		// 4
+print MinFieldWidth( 999 )		// 3
+print MinFieldWidth( 999.99 )	// 3 
+See Also:	
+StringFromMaskedVar
+
+ModWD( inVal )
+Returns inVal after adding or subtracting 360 to bring within the range 0 <= inVal < 360. 
+See Also:	
+Mod
+
+NewDataFolderX( destPath )
+Returns a data folder reference to an eXtended folder path specified by string destPath. This path can be absolute (from root:) or relative (start with :) and may contain multiple levels separated by a colon (:). 
+Details
+If the folder does not exist it is created, along with all necessary parent folders; if it does exist, it is switched to quietly. Liberal folder names can quoted or unquoted. Pairs of colons are interpreted as 'up directory' so :: refers to a parent and ::: refers to a parent's parent.
+Examples
+SetDataFolder NewDataFolderX("root:Packages:mynewfolder:temp")
+DFREF outputDir = NewDataFolderX(":group"+num2istr(grp)+":run"+num2istr(run))
+DFREF inputDF = NewDataFolderX($inputStr)
+See Also:
+Data Folders, Data Folder References, NewDataFolder, SetDataFolder
+
+NotAllSameLength( refw` )
+Returns the element of the first wave in wave refw to have a different length. If all waves are the same length, a 0 is returned.
+See Also:	
+numpnts
+
+PromptSetDataFolder()
+Prompts user to select a datafolder, switches to chosen folder and returns a DFREF to the user's starting location. This may be useful if you want to switch back later.
+Examples
+DFREF sav0 = PromptChooseFolder()
+// mess with some data
+SetDataFolder sav0
+See Also:	
+Data Folder References, SetDataFolder, GetDataFolderDFR
+
+PromptForFileList( msg )
+Displays an Open File dialog box to user. Returns semicolon separated list of files selected or an empty string ("") if the user cancels. String parameter msg is shown in the title bar of the dialog box.
+See Also:
+Open, Displaying a Multi-Selection Open File Dialog
+
+R2D( inVal )
+Returns inVal after converting from radians to degrees. Useful in wave assignments.
+See Also:	
+D2R, Cardinal2D, D2Cardinal, Wave Assignment
+
+RemoveBlanks( theWave )
+Removes blank ("") rows in text wave theWave and returns the number of rows removed.
+This function was inspired by RemoveNaNs in <Remove Points.ipf>
+See Also:
+RemoveNaNs
+
+SameNumPnts( w1, w2` )
+Returns truth or falsehood of whether waves w1 and w2 have equal number of points.
+See Also:	
+numpnts
+
+SameXscaling( w1, w2` )
+Returns truth or falsehood of whether waves w1 and w2 have equivalent X scaling. 
+See Also:	
+wave scaling
+
+serial2secs( serialdate )
+Returns Igor date/time value corresponding to the serial date serialdate, which is defined as the number of seconds since midnight, January 1, 1970. Serial dates are used by Excel and DAQFactory.
+This function is useful in wave assignments. 
+Examples
+timestamp = serial2secs( timeW[p] )
+See Also:	
+Date/Time Waves, date2secs
+
+SetBit( var, bit )
+Returns var with bit number bit set to 1. Bit numbering is zero-indexed.
+Details
+Since bitwise operators only make sense on integers, var is treated as one and an integer is returned.
+This is basically a wrapper for the bitwise OR (|). It was derived from the example under Using Bitwise Operators.
+See Also:	
+ClearBit, ShiftBit, TestBit, BitString
+
+ShiftBit( var, by )
+Returns variable var after shifting bits by number of places. The shift will occur leftwards, increasing var if by is positive; rightwards, decreasing var, if by is negative. 
+Details
+Since bitwise operators only make sense on integers, var is treated as one. However, it is still possible to recieve fractional values when shifting rightwards. [authors note: find out why]
+This is basically a wrapper for multiplication and division by powers of 2, which has the same effect as multiplication and division by powers of 10 in decimal. It is derived from the example under Using Bitwise Operators.
+See Also:	
+ClearBit, SetBit, TestBit, BitString
+
+string2secs( timestring, format )
+Returns Igor date/time value of timestamp represented in string timestring using the regular expression in string format. 
+Any double quotes in timestring are ignored. The regular expression in format follows the conventions of sscanf.
+Tips
+A suitable regular expression for format is probably already available in TimeRegEx. 
+This function is useful in wave assignments. 
+Examples
+Make/D/N=(numpnts(timestampStr)) timestampVal 
+timestampVal = string2secs( timestampStr[p], TimeRegEx(0) )
+See Also:	
+Date/Time Waves, date2secs, sscanf, TimeRegEx
+
+StringFromMaskedVar( maskStr, inVal, [, fixNNwidth] )
+Returns maskStr after replacing appropriate field codes with values derived from inVal. 
+Details
+The string maskStr can contain a combination of literal text and zero, one or more field codes described below. Each instance of a field code will be replaced with the indicated value derived from inVal. Field codes are case-sensitive.
+		Field Code
+Fixed width 	Variable width 	Value interpreted from inVal
+\nn		\n		inVal as integer	*
+\YYYY				four-digit year
+\YY				two-digit year
+\MM		\M		month
+\DD		\D		day of month
+\DDD		\ddd		day of year **not implemented**
+\hh		\h		hours, military style
+\hhn		\hn		hours, normal style
+\mm		\m		minute
+\ss		\s		second
+
+*Note: If optional parameter fixNNwidth is not specified, a variable width field will be used instead. If the necessary field width is unknown, it can be found by passing the highest possible value of inVal to MinFieldWidth.
+Tip
+This function was designed to generate an output file name containing timestamp elements but it will create sequential file names too.
+Examples
+print StringFromMaskedVar("test_\YYYY\MM\DD_\hhn\mm", date2secs(1937, 07, 18)+
+	(14*3600+8*60+37))				// test_19370718_0208	<< note: 2PM
+print StringFromMaskedVar("test_\YYYY\MM\DD_\hh\mm", date2secs(1937, 07, 18)+
+	(14*3600+8*60+37))				// test_19370718_1408 
+print StringFromMaskedVar("\YY_\M_\D_\h_\m_\s.dat", date2secs(1937, 07, 18)+
+	(14*3600+8*60+37))				// 37_7_18_14_8_37.dat
+print StringFromMaskedVar("file_\nn.txt", 4, fixNNwidth=3) //  file_004.txt
+See Also
+MinFieldWidth, ReplaceString
+
+TestBit( var, bit )
+Returns the truth (1) or nontruth (0) of whether bit number bit is set in var. 
+Details
+Since bitwise operands only make sense on integers, var is treated as one. 
+This is basically a wrapper for bitwise AND (&). It was derived from the example under Using Bitwise Operators.
+See Also:	
+ClearBit, SetBit, ShiftBit, BitString
+
+TimeRegEx( choice )
+Returns string containing one of several time stamp regular expressions compatible with sscanf.
+choice	Format matching regular expression
+	0	YYYY-MM-DD hh:mm:ss.sss (ISO, CampbellSci)
+	1	reserved
+	2	reserved
+	3	reserved
+	4	reserved
+	5	reserved
+See Also:	
+string2secs, sscanf
+
+uvwRotation( uvwMatrix, type )
+rotates waves
+References
+
+See Also:	
+another topic
+
+WindDir( Ux, Uy, azimuth, type )
+Returns the direction wind is coming from in the range 0 <= WD < 360 based on horizontal components Ux and Uy  as 
+	
+where Vaz is determined by type. If any input values are NAN, then NAN is returned.
+Parameters
+Ux and Uy are variables representing horizontal wind components in an orthogonal space defined according to the variable type. 
+Variable azimuth represents the angle, measured (+) clockwise in degrees, between true north and the orientation of the sensor array. 
+Variable type defines the coordinate system of Ux and Uy to permit the use of different sensor geometries. The angular correction Vaz is determined by the value of type.
+	0 	Use with: Campbell CSAT3, ATI models
+This right-handed coordinate system defines +Ux as wind into the array, parallel to the sensor boom. Looking into the array along the boom, +Uy is oriented leftwards while +Uz is upward. Vaz = 90
+	*	No other type values are defined yet. It could be expanded as necessary.
+References
+
+See Also:	
+Another Topic
+
+WindDirMardiaSdev( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+WindDirScalarMeanSdev( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+WindDirUnitVectorMean( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+WindDirYamartinoSdev( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+WindSpeed( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+WindSpeedScalarMean( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+WindSpeedScalarHMean( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+WindSpeedVectorMean( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+WindSpeedPersist( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+Function( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+
+Function( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+
+Function( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function( parameter )
+This is a subtopic.
+See Also:	
+Another Topic
+
+
