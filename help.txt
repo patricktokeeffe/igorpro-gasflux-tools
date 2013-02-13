@@ -78,33 +78,11 @@ BitString, ClearBit, SetBit, ShiftBit, TestBit
 
 •	Files and Folders
 This group includes functions to load and export data from a variety of common formats, as well as to manipulate the underlying file system to make handling data files easier. A utility to load waves from compressed archives without manually extracting them is under development, too.
-BaleWaves, ListFilesIn, LoadCSI, PromptForFileList 
-
-	BaleWaves, 
-	ListFilesIn, 
-	LoadCSI, 
-	LoadDLT100, 
-	LoadG1103, 
-	LoadG2301, 
-	LoadNMEA, 
-	PromptForFileList, 
-	UnzipArchive, 
-	UnzipArchivesInList, 
+BaleWaves, ListFilesIn, LoadCSI, LoadDLT100, LoadG1103, LoadG2301, LoadNMEA, PromptForFileList, UnzipArchive, UnzipArchivesInList
 
 •	Igor Functions
 These functions came about to accomplish some specific, but universal kind of task in Igor Pro.
 AllFoldersHere, AllWavesHere, BatchRemoveNans, CountNans, MinFieldWidth, NewDataFolderX, PromptChooseFolder, RemoveBlanks, StringFromMaskedVar 
-
-
-	AllFoldersHere, 
-	AllWavesHere, 
-	BatchRemoveNANs, 
-	CountNans, 
-	MinFieldWidth, 
-	NewDataFolderX, 
-	PromptSetDataFolder, 
-	RemoveBlanks, 
-	StringFromMaskedVar, 
 
 •	Interval Operands
 The interval operators are intended for analyzing time series in consecutive, adjacent, identically sized subintervals. Sliding windows are not currently available, nor are they planned. The basic options are interval size, in seconds, and aligned/not aligned from midnight with respect to interval size. 
@@ -125,55 +103,25 @@ BankerRound, Cov
 
 •	Time
 Time is a very important consideration. It can make up to half of the data. 
-IsntChronological, serial2secs, string2secs, TimeIntervalBoundaries, TimeRegEx
+IsntChronological, serial2secs, string2secs, TimeIntervalBoundaries, TimeRegEx 
 
 •	Truth Tests
 These functions all return the true/false truth of some specific condition.
 HasDuplicateDFRefs, HasDuplicateWRefs, HasNans, NotAllSameLength, SameNumPnts, SameXscaling 
 
-	HasDuplicateDFRefs, 
-	HasDuplicateWRefs, 
-	HasNANs, 
-	SameNumCols, 
-	SameNumChunks, 
-	SameNumLayers, 
-	SameNumPnts, 
-	SameNumRows, 
-	SameXscaling, 
-	NotAllSameLength, 
+HasDuplicateDFRefs, HasDuplicateWRefs, HasNANs, SameNumCols, SameNumChunks, SameNumLayers, SameNumPnts, SameNumRows, SameXscaling, NotAllSameLength 
 
 •	Wind
-Handling components of wind is a routine part of atmospheric research. This set of common calculations and conversions will make dealing with wind less onerous. 
-Cardinal2D, D2Cardinal, D2R, ModWD, R2D, uvwRotation, WindDir, WindDirMardiaSdev, WindDirScalarMeanSdev, WindDirUnitVectorMean, WindDirYamartinoSdev, WindSpeed, WindSpeedScalarMean, WindSpeedScalarHMean, WindSpeedVectorMean, WindSpeedPersist, 
-
-	Cardinal2D, 
-	D2Cardinal, 
-	D2R, 
-	ModWD, 
-	R2D, 
-	WindDir, 
-	WindDirMardiaSdev, 
-	WindDirScalarMeanSdev, 
-	WindDirUnitVectorMean, 
-	WindDirVectorMean, 
-	WindDirYamartinoSdev, 
-	WindSpeed, 
-	WindSpeedScalarMean, 
-	WindSpeedScalarHMean, 
-	WindSpeedScalarSdev, 
-	WindSpeedVectorMean, 
-	WindSpeedPersist, 
-
-
-
+These functions handle some of the basic wind data reduction routines and provide a few convenient conversions.
+Cardinal2D, 	D2Cardinal, D2R, ModWD, R2D, WindDir, WindDirMardiaSdev, WindDirScalarMeanSdev, WindDirUnitVectorMean, WindDirVectorMean, WindDirYamartinoSdev, WindSpeed, WindSpeedScalarMean, WindSpeedScalarHMean, WindSpeedScalarSdev, WindSpeedVectorMean, WindSpeedPersist 
 
 ==========================================================================
 •	LAR Package Reference
 
 AddWaveRef( addref, wrefs, beforePoint )
-Returns wrefs after inserting wave reference addref at point beforePoint.
+Returns wrefs after inserting wave reference addref at point beforePoint; remaining points are shifted.
 See Also:
-?????
+InsertPoints, WAVE References
 
 AllDataFoldersHere( sortBy )
 Returns wave of data folder references to all data folders in the current data folder, sorted according to the value of sortBy. All folders named Packages are omitted.
@@ -210,14 +158,13 @@ or a bitwise combination of the above with the following restriction: only one o
 See Also:
 WaveList, SortList, WAVE References
 
-AmbientTemp( Ts, Q_ )
-Return ambient temperature in Celcius, derived from sonic anemometer/thermometer measurement Ts and ambient specific humidity Q_.
-See Also:
-?????
+AmbientTemp( Ts, Q_ ) 
+ThreadSafe
+Return ambient temperature in Celcius, derived from sonic anemometer/thermometer measurement Ts and ambient specific humidity Q_. Function does internal conversion to perform calculation in Kelvin. 
 
 BaleWaves( tstamp, refw, interval, options, formatTableName, destNameMask, destPath )
 The BaleWaves function writes each subinterval of the waves included in refw to a comma separated file. One file is generated for each interval. 
-**this documentation is predated!**
+**this documentation needs review!**
 Parameters
 tstamp is a double precision wave of sequential timestamps. It should not contain any empty values (NAN). 
 refw is a wave of wave references to include in the output file. If a timestamp column is desired, then tstamp should also be the first element of refw. The order of refw determines left-to-right order of columns in the output file. 
@@ -248,13 +195,6 @@ References
 Rounding <https://secure.wikimedia.org/wikipedia/en/wiki/Banker%27s_rounding>
 See Also:	
 round, trunc, floor, ceil
-
-BatchRemoveNans( refw )
-Removes NANs from waves while preserving correct alignment of values across rows. 
-Details
-Checks each wave in refw for NAN values and, if found, removes that row from each wave in refw. The operation is performed so the alignment of data values remains consistent. This may be an important consideration when preparing sets of XY data for operations which do not accept NAN (such as Mean).
-See Also:	
-RemoveNaNs
 
 BitString( var, howMany [, maxLen] )
 Returns a string representation of howMany bits in var, starting with the least significant bit, written from right to left in 4 digit groups. 
@@ -288,6 +228,11 @@ This is basically a wrapper for the bitwise complement (~) followed by the bitwi
 See Also:	
 SetBit, ShiftBit, TestBit, BitString
 
+ConcatAcrossDFRs( DFRlist, destPath, overwrite, kill, [wfilter] )
+Returns  
+See Also:	
+???
+
 CountNans( theWave )
 Returns the total number of NANs in theWave. 
 See Also:	
@@ -310,22 +255,147 @@ See Also:
 Cardinal2D, D2R, R2D, Wave Assignment
 
 D2R( inVal )
+ThreadSafe
 Returns inVal after converting from degrees to radians. Useful in wave assignments.
 See Also:	
 R2D, Cardinal2D, D2Cardinal, Wave Assignment
 
-HasDuplicateDFRefs( refw )
+daqfactory2secs( timeval )
+ThreadSafe
+Returns DAQFactory (TM) timestamps converted to Igor date/time value
+See Also:	
+date2secs
+
+DayOfWeek( tstamp )
+Returns day of the week (1=Sunday,...,7=Saturday) based on Igor date/time value. 
+See Also:	
+????
+
+DensityOfAir( T_, P_, [, inMoles] )
+Returns density of air in g/m^3 or, if inMoles is non-zero, mol/m^3 using ideal gas law. 
+more detail here
+See Also:	
+????
+
+DespikeHaPe( ... )
+Performs 'soft' spike despiking routine.
+more detail here
+See Also:	
+????
+
+DewPoint( e_ )
+Returns dew point based on vapor pressure. 
+more detail here
+See Also:	
+????
+
+DiagnoseCPC3776( diagWord, option )
+Creates boolean waves denoting presence or absence of diagnostics flags.
+more detail here
+See Also:	
+????
+
+DiagnoseCSAT3( diagWord, option )
+Creates boolean waves denoting presence or absence of diagnostics flags.
+more detail here
+See Also:	
+????
+
+DiagnoseLI7500( diagWord, option )
+Creates boolean waves denoting presence or absence of diagnostics flags.
+more detail here
+See Also:	
+????
+
+DielAverage( wname, tstamp, mode )
+Computes means over 24-hour periods. No internal nan handling.
+more detail here
+See Also:	
+????
+
+doy2sec( doy, year )
+Converts a decimal day-of-year into Igor date/time value. 
+more detail here
+See Also:	
+????
+
+ECLatentHeat( h2o, w_ [, T_, p1, p2] )
+Unverified
+Return latent heat flux using eddy covariance. 
+more detail here
+See Also:	
+????
+
+ECSensibleHeat( T_, w_, P_, Q_ [, p1, p2] )
+Unverified
+Return sensible heat flux in W/m^2 using eddy covariance. 
+more detail here
+See Also:	
+????
+
+EC_WPL80( meanRHOc, meanRHOv, meanRHOd, meanT, cov_w_rhoV, cov_w_T )
+Unverified
+Return eddy covariance density corrections according to Webb, Pearman, Leuning (1980). 
+more detail here
+See Also:	
+????
+
+EC_WPL80_TS( rhoC, rhoV, rhoD, T_, w_ [, p1, p2] )
+Unverified
+Return eddy covariance density corrections for a time series according to Webb, Pearman, Leuning (1980). 
+more detail here
+See Also:	
+????
+
+EstimateLag( baseWave, targetWave, keepResults )
+Returns estimate of record lag between two waves or NAN for error. 
+more detail here
+See Also:	
+????
+
+excel2secs( serialdate [, use1904mode] )
+ThreadSafe
+Converts "serial date" used by Microsoft Excel (TM) into Igor date/time value. 
+more detail here
+See Also:	
+????
+
+FlattenDir( pathName, recurse, overwrite [, fileFilter, kill] )
+Flattens file directories by recursively lifting contents out of subfolders. 
+more detail here
+See Also:	
+????
+
+FrictionVelocity( u_, v_, w_ [, p1, p2] )
+Returns friction velocity following the AMS definition. 
+more detail here
+See Also:	
+????
+
+GetDataFolderList( [seePkgs] )
+Returns sorted, hierarchal list of all datafolders
+more detail here
+See Also:	
+????
+
+HasDuplicateDFRefs( dfrefs )
 Returns the element number of the first duplicate data folder reference in wave refw. If no duplicates are found, 0 is returned.
 See Also:	
 DataFolderRefsEqual
 
-HasDuplicateWRefs( refw )
+HasDuplicateWRefs( wrefs )
 Returns the element number of the first duplicate wave reference in wave refw. If no duplicates are found, 0 is returned.
 See Also:	
 WaveRefsEqual
 
 HasNans( wname )
 Returns the element number of the first NAN found in wname or 0 if none are found. The special case of wname[0] = NAN returns -1. 
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
+HaveNans( wrefs [, p1, p2] )
+Returns the element number of the first NAN found in wname or 0 if none are found. The special case of wname[0] = NAN returns -1. 
+more detail here
 See Also:	
 RemoveNaNs, BatchRemoveNANs
 
@@ -360,22 +430,123 @@ Which produces output similar to:
 See Also:	
 some other function
 
-IntervalCov( parameter )
+IntervalCov( wx, wy, tstamp, interval, aligned [, bp] )
 This is a subtopic.
 See Also:	
 Another Topic
 
-IntervalMean( parameter )
+IntervalDespikeHaPe( wname, tstamp, interval, aligned [, multiplier, increment, passes, bp] )
 This is a subtopic.
 See Also:	
 Another Topic
 
-IntervaluvwRotation( parameter )
+IntervalECLatentheat( h2o, w_, tstamp, interval, aligned [, T_, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalECSensibleHeat( T_, w_, P_, Q_, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalEC_WPL80( rhoC, rhoV, rhoD, T_, w_, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalFrictionVelocity( u_, v_, w_, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalMaxPntsGone( wrefs, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalMean( wname, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalObukhovLength( u_, v_, w_, Tv, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalSdev( wname, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalTimestamps( tstamp, interval, aligned, edge [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalTKE( u_, v_, w_, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervaluvwRotation( uvwMatrix, type, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalWindDirMardiaSdev( Ux, Uy, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalWindDirScalarMeanSdev( Ux, Uy, azimuth, flag, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalWindDirUnitVectorMean( Ux, Uy, azimuth, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalWindDirVectorMean( Ux, Uy, azimuth, flag, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalWindDirYamartinoSdev( Ux, Uy, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalWindSpeedScalarMean( Ux, Uy, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalWindSpeedScalarHMean( Ux, Uy, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalWindSpeedScalarSdev( Ux, Uy, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalWindSpeedVectorMean( Ux, Uy, tstamp, interval, aligned [, bp] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+IntervalWindSpeedPersist( Ux, Uy, tstamp, interval, aligned [, bp] )
 This is a subtopic.
 See Also:	
 Another Topic
 
 IsntChronological( wname )
+ThreadSafe
 Returns the row number of the first element of wname to violate chronological order or of the first empty field (NAN), otherwise returns false (0). Special case of wname[0]=NAN returns -1.
 Examples
 If ( IsntChronological(timestamp) ) 
@@ -383,6 +554,16 @@ If ( IsntChronological(timestamp) )
 endif
 See Also:	
 Sort, RemoveNaNs, BatchRemoveNaNs
+
+LatentHeatVapH2O( T_ )
+Returns latent heat of vaporization of water in J/g based on temperature in Celcius.
+See Also:	
+Another Topic
+
+LatLongDistance( lat1, long1, lat2, long2 )
+Returns distance as-the-crow-flies (Haversine formula) between lat/long pairs 1&2, in meters.
+See Also:	
+Another Topic
 
 ListFilesIn( pathName, fileFilter, fileExt, recurse, sortBy )
 The ListFilesIn function returns a semicolon separated list of all the files in pathName with extensions matching fileExt, optionally searching subfolders and sorting file/folder names. 
@@ -394,6 +575,11 @@ recurse is a variable indicating maximum level of depth to use while searching s
 sortBy is a variable specifying the sort mode to apply: a value of -1 will sort files and folders according to creation date while other valid values are identical to options in SortList. 
 See Also:
 IndexedFile, IndexedDir, NewPath, SortList, File Types and Extensions, ParseFilePath, Path Seperators, Regular Expressions
+
+ListDataFoldersIn( folder )
+Recursively searches for data folders in folder and returns hierarchal, semicolon-separated list. 
+See Also:	
+Another Topic
 
 LoadCSI( fileList, fileType, overwrite, convertTS, options [, baseSFname] ) 
 The LoadCSI function loads data from one or more Campbell Scientific Loggernet files into  Igor waves and, optionally, converts string timestamps into their double-precision representation. 
@@ -429,6 +615,12 @@ The above bits may be combined with these exceptions:
 See Also:	
 LoadWave, Setting Bit Parameters
 
+LoadLGR( fileList, modelName, overwrite, concat, resamp, options [, baseSFname, B] )
+Reads data file from Los Gatos Research analyzer
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
 MinFieldWidth( num )
 Returns the minimum number of fields necessary to hold the absolute value of integer num. 
 Examples
@@ -442,10 +634,34 @@ print MinFieldWidth( 999.99 )	// 3
 See Also:	
 StringFromMaskedVar
 
+MixingRatio( C_, T_, P_, h2o [, inMass] )
+Returns dimensionless molar mixing ratio of constituent C as the ratio of moles of C to moles of dry air. Pass non-zero value to inMass to receive mass mixing ratio. 
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
+MixingRatioMF( C_, T_, P_, MFw )
+Returns dimensionless molar mixing ratio of constituent C as the ratio of moles of C to moles of dry air. 
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
+MixingRatioVP( e_, P_ [, MW] )
+Returns dimensionless mass mixing ratio of a vapor as the ratio of mass of vapor to the mass of dry air. Assumes vapor is water; specify molecular weight of alternate vapor using MW if desired. 
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
 ModWD( inVal )
 Returns inVal after adding or subtracting 360 to bring within the range 0 <= inVal < 360. 
 See Also:	
 Mod
+
+MoleFraction( C_, T_, P_ )
+Returns dimensionless mole fraction of constituent C as ratio of moles of C to total moles in system.  
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
 
 NewDataFolderX( destPath )
 Returns a data folder reference to an eXtended folder path specified by string destPath. This path can be absolute (from root:) or relative (start with :) and may contain multiple levels separated by a colon (:). 
@@ -458,10 +674,34 @@ DFREF inputDF = NewDataFolderX($inputStr)
 See Also:
 Data Folders, Data Folder References, NewDataFolder, SetDataFolder
 
+NewProgressWindow()
+Creates a new progress window with 0% progress and returns name of the window. 
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
+ObukhovLength( frictionVelocity, meanTv, cov_w_Tv )
+Returns the Monin-Obukhov length in meters from scalar values. 
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
+ObukhovLengthTS( u_, v_, w_, Tv [, p1, p2] )
+Returns the Monin-Obukhov length in meters from a time-series. 
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
 NotAllSameLength( refw` )
 Returns the element of the first wave in wave refw to have a different length. If all waves are the same length, a 0 is returned.
 See Also:	
 numpnts
+
+PotentialTemp( T_, P_ [, P0] )
+Returns the potential temperature; standard pressure used is P0 = 1000mb by default. 
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
 
 PromptSetDataFolder()
 Prompts user to select a datafolder, switches to chosen folder and returns a DFREF to the user's starting location. This may be useful if you want to switch back later.
@@ -478,25 +718,114 @@ See Also:
 Open, Displaying a Multi-Selection Open File Dialog
 
 R2D( inVal )
+ThreadSafe
 Returns inVal after converting from radians to degrees. Useful in wave assignments.
 See Also:	
 D2R, Cardinal2D, D2Cardinal, Wave Assignment
 
+RelativeHumidity( e_, T_ )
+Returns relative humidity based on ambient temperature in Celcius and water vapor pressure in mbar or hPa. 
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
 RemoveBlanks( theWave )
+ThreadSafe
 Removes blank ("") rows in text wave theWave and returns the number of rows removed.
 This function was inspired by RemoveNaNs in <Remove Points.ipf>
 See Also:
 RemoveNaNs
 
-SameNumPnts( w1, w2` )
+RemoveNansW( wrefs )
+Removes NANs from waves while preserving correct alignment of values across rows. 
+Details
+Checks each wave in refw for NAN values and, if found, removes that row from each wave in refw. The operation is performed so the alignment of data values remains consistent. This may be an important consideration when preparing sets of XY data for operations which do not accept NAN (such as Mean).
+See Also:	
+RemoveNaNs
+
+RemoveWaveRef( remref, wrefs )
+Remove any references in wrefs which are equivalent to remref.
+See Also:
+????
+
+ReplaceWaveValues( wrefs, withVal, mode, val1, val2 [, p1, p2] )
+need description
+See Also:
+????
+
+ResampleXY( tstamp, wrefs, newRate )
+need description
+See Also:
+????
+
+SameNumCols( w1, w2 )
+ThreadSafe
+Returns truth or falsehood of whether waves w1 and w2 have equal number of columns.
+See Also:	
+numpnts
+
+SameNumColsW( wrefs )
+ThreadSafe
+Returns truth or falsehood of whether all waves in wrefs have equal number of columns.
+See Also:	
+numpnts
+
+SameNumChunks( w1, w2 )
+ThreadSafe
+Returns truth or falsehood of whether waves w1 and w2 have equal number of chunks.
+See Also:	
+numpnts
+
+SameNumChunksW( wrefs )
+ThreadSafe
+Returns truth or falsehood of whether all waves in wrefs have equal number of chunks.
+See Also:	
+numpnts
+
+SameNumLayers( w1, w2 )
+ThreadSafe
+Returns truth or falsehood of whether waves w1 and w2 have equal number of layers.
+See Also:	
+numpnts
+
+SameNumLayersW( wrefs )
+ThreadSafe
+Returns truth or falsehood of whether all waves in wrefs have equal number of layers.
+See Also:	
+numpnts
+
+SameNumPnts( w1, w2 )
 Returns truth or falsehood of whether waves w1 and w2 have equal number of points.
 See Also:	
 numpnts
 
-SameXscaling( w1, w2` )
+SameNumPntsW( wrefs )
+Returns truth or falsehood of whether all waves in wrefs have equal number of points.
+See Also:	
+numpnts
+
+SameNumRows( w1, w2 )
+ThreadSafe
+Returns truth or falsehood of whether waves w1 and w2 have equal number of rows.
+See Also:	
+numpnts
+
+SameNumRowsW( wrefs )
+ThreadSafe
+Returns truth or falsehood of whether all waves in wrefs have equal number of rows.
+See Also:	
+numpnts
+
+SameXscaling( w1, w2 )
+ThreadSafe
 Returns truth or falsehood of whether waves w1 and w2 have equivalent X scaling. 
 See Also:	
 wave scaling
+
+SatVP( T_ )
+Returns saturation water vapor pressure based on ambient temperature in Celcius. 
+See Also:	
+????
 
 serial2secs( serialdate )
 Returns Igor date/time value corresponding to the serial date serialdate, which is defined as the number of seconds since midnight, January 1, 1970. Serial dates are used by Excel and DAQFactory.
@@ -521,6 +850,16 @@ Since bitwise operators only make sense on integers, var is treated as one. Howe
 This is basically a wrapper for multiplication and division by powers of 2, which has the same effect as multiplication and division by powers of 10 in decimal. It is derived from the example under Using Bitwise Operators.
 See Also:	
 ClearBit, SetBit, TestBit, BitString
+
+SpecificHumidity( R_ )
+Returns dimensionless specific humidity ratio, defined as mass of water vapor to total mass of system.  
+See Also:	
+wave scaling
+
+SpecificHumidityVP( e_, P_ )
+Returns an approximation of specific humidity.
+See Also:	
+MixingRatioVP, SpecificHumidity
 
 string2secs( timestring, format )
 Returns Igor date/time value of timestamp represented in string timestring using the regular expression in string format. 
@@ -585,12 +924,52 @@ choice	Format matching regular expression
 See Also:	
 string2secs, sscanf
 
+TKE( u_, v_, w_ [, p1, p2] )
+Returns turbulent kinetic energy derived from orthogonal wind components. 
+See Also:	
+????
+
+UnzipArchive( srcFileStr, destFolderStr, overwrite, flatten )
+Unzips archive srcFileStr to directory destFolderStr and returns semicolon-separated list of unzipped files. 
+See Also:	
+????
+
+UnzipArchivesInList( fileList )
+Unzips any archive found in fileList to a temp directory, then replaces name of archive in fileList with list of files inside that archive.
+See Also:	
+????
+
+UpdateProgressWindow( name, val1, val2 [, msg, noKill] )
+Updates the named progress window. 
+See Also:	
+????
+
 uvwRotation( uvwMatrix, type )
 rotates waves
 References
 
 See Also:	
 another topic
+
+VirtualTemp( T_, R_ )
+Returns virtual temperature in Celcius given ambient temp in Celcius and water vapor mixing ratio. 
+See Also:	
+????
+
+VirtualTempVP( T_, e_, P_ )
+Returns virtual temperature in Celcius given ambient temp in Celcius and water vapor pressure and ambient pressure.
+See Also:	
+????
+
+WaveList2Refs( wlist, makeFreeCopies )
+Returns wave of references to waves listed wlist. 
+See Also:	
+????
+
+WaveRefs2List( wrefs, fullName )
+Returns string list of waves in wrefs, possibly quoting.  
+See Also:	
+????
 
 WindDir( Ux, Uy, azimuth, type )
 Returns the direction wind is coming from in the range 0 <= WD < 360 based on horizontal components Ux and Uy  as 
@@ -608,47 +987,57 @@ References
 See Also:	
 Another Topic
 
-WindDirMardiaSdev( parameter )
+WindDirMardiaSdev( Ux, Uy [, p1, p2] )
 This is a subtopic.
 See Also:	
 Another Topic
 
-WindDirScalarMeanSdev( parameter )
+WindDirScalarMeanSdev( Ux, Uy, azimuth, flag [, p1, p2] )
 This is a subtopic.
 See Also:	
 Another Topic
 
-WindDirUnitVectorMean( parameter )
+WindDirUnitVectorMean( Ux, Uy, azimuth, flag [, p1, p2] )
 This is a subtopic.
 See Also:	
 Another Topic
 
-WindDirYamartinoSdev( parameter )
+WindDirVectorMean( Ux, Uy, azimuth, flag [, p1, p2] )
 This is a subtopic.
 See Also:	
 Another Topic
 
-WindSpeed( parameter )
+WindDirYamartinoSdev( Ux, Uy [, p1, p2] )
 This is a subtopic.
 See Also:	
 Another Topic
 
-WindSpeedScalarMean( parameter )
+WindSpeed( Ux, Uy )
 This is a subtopic.
 See Also:	
 Another Topic
 
-WindSpeedScalarHMean( parameter )
+WindSpeedScalarMean( Ux, Uy [, p1, p2] )
 This is a subtopic.
 See Also:	
 Another Topic
 
-WindSpeedVectorMean( parameter )
+WindSpeedScalarHMean( Ux, Uy [, p1, p2] )
 This is a subtopic.
 See Also:	
 Another Topic
 
-WindSpeedPersist( parameter )
+WindSpeedScalarSdev( Ux, Uy [, p1, p2] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+WindSpeedVectorMean( Ux, Uy [, p1, p2] )
+This is a subtopic.
+See Also:	
+Another Topic
+
+WindSpeedPersist( Ux, Uy [, p1, p2] )
 This is a subtopic.
 See Also:	
 Another Topic
