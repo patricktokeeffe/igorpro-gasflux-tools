@@ -25,9 +25,10 @@ if __name__ == "__main__":
         ffile = open(each, 'r')
         results.write('\n' + each + '\n' + ('-'*len(each)) + '\n')
         for line in ffile:
-            if line.startswith('Function'):
+            if (line.startswith('Function') or line.startswith('ThreadSafe')):
                 num_found += 1
                 results.write(line)
         print "found %u functions" % num_found
+    raw_input('Press any key to continue...')
 
 
