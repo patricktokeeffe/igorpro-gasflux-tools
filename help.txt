@@ -170,6 +170,11 @@ Cardinal2D, D2Cardinal, D2R, ModWD, R2D, uvwRotation, WindDir, WindDirMardiaSdev
 ==========================================================================
 •	LAR Package Reference
 
+AddWaveRef( addref, wrefs, beforePoint )
+Returns wrefs after inserting wave reference addref at point beforePoint.
+See Also:
+?????
+
 AllDataFoldersHere( sortBy )
 Returns wave of data folder references to all data folders in the current data folder, sorted according to the value of sortBy. All folders named Packages are omitted.
 type is a literal number which controls the sorting method:
@@ -204,6 +209,11 @@ Returns wave of references to all waves in the current data folder, sorted accor
 or a bitwise combination of the above with the following restriction: only one of 2, 4, 8, or 16 may be specified. The legal values are thus 0, 1, 2, 3, 4, 5, 8, 9, 16, and 17. Other values will produce undefined sorting criteria.
 See Also:
 WaveList, SortList, WAVE References
+
+AmbientTemp( Ts, Q_ )
+Return ambient temperature in Celcius, derived from sonic anemometer/thermometer measurement Ts and ambient specific humidity Q_.
+See Also:
+?????
 
 BaleWaves( tstamp, refw, interval, options, formatTableName, destNameMask, destPath )
 The BaleWaves function writes each subinterval of the waves included in refw to a comma separated file. One file is generated for each interval. 
