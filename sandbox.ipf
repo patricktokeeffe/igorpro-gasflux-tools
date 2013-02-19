@@ -73,6 +73,7 @@ Static Constant kID_loadFiles = 7
 
 
 
+// 2013.02.18 	fix errors in timestamp conversion
 // 2011.11.23 	began conversion to generic Picarro loader
 // 2011.old 		original developed as LoadG2301
 Function LoadPicarro( fileList, modelName, overwrite, concat, tsconv, options, [baseSFname, B] )
@@ -161,8 +162,8 @@ Function LoadPicarro( fileList, modelName, overwrite, concat, tsconv, options, [
 			elseif ( DimSize(datew,0) != DimSize(timew,0) )
 				print "LoadPicarro: date and time waves loaded from <"+fullPath+"> had different lengths - skipping conversion."
 			else
-				Make/D/N=(datew) timestamp = datew[p] + timew[p]
-				If ( tsconv < 0 )
+				Make/D/N=(numpnts(datew)) timestamp = datew[p] + timew[p]
+				If ( tsconv > 0 )
 					KillWaves datew, timew
 				endif
 			endif
