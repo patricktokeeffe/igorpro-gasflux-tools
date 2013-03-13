@@ -1,17 +1,20 @@
-•	Laboratory for Atmospheric Research Package (13.2)
-
+•	Laboratory for Atmospheric Research Package
+	Version 0.2 
 •	Overview
 larpkg is a collection of Igor Pro functions focusing on time series, atmospheric fluxes, meterological parameters, and handling of a few less common scientific data formats. While some functions are decidedly narrow in focus, many are general and would be useful in other contexts. Most higher-level functions come with a host of optional arguments - it's usually worth your time to know what they do!
 •	Installation
 •	Additional Resources 
-•	Bitwise Functions
-•	Files and Folders
-•	Igor Functions
-•	Interval Operands
-•	Statistics
-•	Time
-•	Truth Tests
-•	Wind
+•	Function Groups 
+	• Bitwise Functions
+	• Files and Folders
+	• Igor Functions
+	• Interval Operands
+	• Statistics/Math
+	• Time Functions
+	• Truth Tests
+	• Wind Statistics
+•	Menu Additions
+•	Graphical User Interfaces
 •	LAR Package Reference
 
 •	Installation
@@ -23,8 +26,8 @@ larpkg-<version>.7z\
 		7zip920.exe 	Installation binary for open-source archive utility 7-zip version 9.2
 	larpkg Help.ihf 	This help file, compiled for use with Igor Pro
 	larpkg Help.pdf 	This help file, printed to PDF/A format for reading without Igor Pro
-	larguis.ipf 	Procedure file containing optional graphical user interfaces
 	larlib.ipf 	Procedure file containing core function set
+Additionally, you should be able to attain the help file and procedure file as standalone files. 
 
 Dependencies
 The following procedure files are activated by larpkg because they possess functionality it depends on. It is not necessary to install these files -- they are included with Igor Pro.
@@ -72,23 +75,26 @@ Some interesting projects/snippets include:
 •	Progress window.ipf -- Dislpay a pop-up progress window for long computations
 •	simple_spectral.ipf -- functions for spectra-related computations 
 
-•	Bitwise Functions
+•	Function Groups
+This section provides a broad overview of available functions by group. 
+
+Bitwise Functions
 There are several functions designed to make bitwise operations more clear. The relevant Igor help topic is Using Bitwise Operators. Reading specific flags from an instrument's diagnostic code is one example of where these functions could be applied.
 BitString, ClearBit, SetBit, ShiftBit, TestBit
 
-•	Files and Folders
+Files and Folders
 This group includes functions to load and export data from a variety of common formats, as well as to manipulate the underlying file system to make handling data files easier. A utility to load waves from compressed archives without manually extracting them is under development, too.
 BaleWaves, ListFilesIn, LoadCSI, LoadDLT100, LoadG1103, LoadG2301, LoadNMEA, PromptForFileList, UnzipArchive, UnzipArchivesInList
 
-•	Igor Functions
+Igor Functions
 These functions came about to accomplish some specific, but universal kind of task in Igor Pro.
 AllFoldersHere, AllWavesHere, BatchRemoveNans, CountNans, MinFieldWidth, NewDataFolderX, PromptChooseFolder, RemoveBlanks, StringFromMaskedVar 
 
-•	Interval Operands
+Interval Operands
 The interval operators are intended for analyzing time series in consecutive, adjacent, identically sized subintervals. Sliding windows are not currently available, nor are they planned. The basic options are interval size, in seconds, and aligned/not aligned from midnight with respect to interval size. 
-	With an interval of 30min and initial timestamp of 10:08:24, then if
-		• aligned is zero, the first output period starts at 10:08:24
-		• aligned is non-zero, the first output period starts at 10:00:00
+	With an interval of 30min and initial timestamp of 10:48:24, then if
+		• aligned is zero, the first output period starts at 10:48:24
+		• aligned is non-zero, the first output period starts at 10:30:00
 In general, results are provided as a wave reference; see Free Waves. This puts the onus on the user to explicitly save their results using Duplicate or MoveWave. A few more complex functions both modify source waves and return results; this is made explicit in the reference when true. 
 IntervalBoundaries, IntervalCov, IntervalDespikeHaPe, IntervalECLatentHeat, IntervalECSensibleHeat, 
 IntervalEC_WPL80, IntervalFrictionVelocity, IntervalMaxPntsGone, IntervalMean, IntervalObukhovLength, 
@@ -97,23 +103,33 @@ IntervalWindDirScalarMeanSdev, IntervalWindDirUnitVectorMean, IntervalWindDirVec
 IntervalWindDirYamartinoSdev, IntervalWindSpeedScalarMean, IntervalWindSpeedScalarHMean, 
 IntervalWindSpeedScalarSdev, IntervalWindSpeedVectorMean, IntervalWindSpeedPersist
 
-•	Statistics
+Statistics/Math
 These supplement the built-in math and statistics functions. 
 BankerRound, Cov
 
-•	Time
+Time Functions
 Time is a very important consideration. It can make up to half of the data. 
 IsntChronological, serial2secs, string2secs, TimeIntervalBoundaries, TimeRegEx 
 
-•	Truth Tests
+Truth Tests
 These functions all return the true/false truth of some specific condition.
 HasDuplicateDFRefs, HasDuplicateWRefs, HasNans, NotAllSameLength, SameNumPnts, SameXscaling 
 
 HasDuplicateDFRefs, HasDuplicateWRefs, HasNANs, SameNumCols, SameNumChunks, SameNumLayers, SameNumPnts, SameNumRows, SameXscaling, NotAllSameLength 
 
-•	Wind
+Wind Statistics
 These functions handle some of the basic wind data reduction routines and provide a few convenient conversions.
 Cardinal2D, 	D2Cardinal, D2R, ModWD, R2D, WindDir, WindDirMardiaSdev, WindDirScalarMeanSdev, WindDirUnitVectorMean, WindDirVectorMean, WindDirYamartinoSdev, WindSpeed, WindSpeedScalarMean, WindSpeedScalarHMean, WindSpeedScalarSdev, WindSpeedVectorMean, WindSpeedPersist 
+
+•	Menu Additions
+In addition to functions, several useful menus are added:
+•	Under Data > Load Waves, there are links to guided file loading interfaces 
+•	A new submenu More Tools is added to Analysis 
+•	The plot context-menu is expanded with useful scaling options
+
+•	Graphical User Interfaces
+These functions handle some of the basic wind data reduction routines and provide a few convenient conversions.
+ListFilesIn_Panel, LoadLGR_Panel, PromptedLoadCSI, PromptedLatLongDistance 
 
 ==========================================================================
 •	LAR Package Reference
@@ -621,6 +637,12 @@ more detail here
 See Also:	
 RemoveNaNs, BatchRemoveNANs
 
+LoadPicarro( fileList, modelName, overwrite, concat, tsconv, options [, baseSFname, B] )
+Reads data file from Picarro trace gas analyzers; only CO2/CH4/H2O (G2301-f) supported right now. 
+more detail here
+See Also:	
+RemoveNaNs, BatchRemoveNANs
+
 MinFieldWidth( num )
 Returns the minimum number of fields necessary to hold the absolute value of integer num. 
 Examples
@@ -1041,90 +1063,3 @@ WindSpeedPersist( Ux, Uy [, p1, p2] )
 This is a subtopic.
 See Also:	
 Another Topic
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Function( parameter )
-This is a subtopic.
-See Also:	
-Another Topic
-
-Function( parameter )
-This is a subtopic.
-See Also:	
-Another Topic
-
-
-Function( parameter )
-This is a subtopic.
-See Also:	
-Another Topic
-
-
-Function( parameter )
-This is a subtopic.
-See Also:	
-Another Topic
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Function( parameter )
-This is a subtopic.
-See Also:	
-Another Topic
-
-
