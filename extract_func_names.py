@@ -12,6 +12,9 @@ import sys
 
 if __name__ == "__main__":
     filelist = sys.argv[1:]
+    if not filelist:
+        filelist = [raw_input('Specify file: ')]
+    if not filelist: sys.exit(0)
 
     results = open('found_funcs.txt', 'w')
     results.write('Extracted functions \n-------------------\n')    
