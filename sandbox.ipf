@@ -1,4 +1,4 @@
-#If ( 1 )							// 1 to compile; 0 for omit
+#If ( 0)							// 1 to compile; 0 for omit
 #pragma rtGlobals = 1				// Use modern global access method.
 
 Menu "Macros"
@@ -21,7 +21,6 @@ Static Constant kID_nanFill = 4
 Static Constant kID_concatDFs = 5
 Static Constant kID_wswd = 6
 Static Constant kID_loadFiles = 7
-
 
 	
 
@@ -72,146 +71,6 @@ Static Constant kID_loadFiles = 7
 
 
 
-
-// 2013.02.18 	fix errors in timestamp conversion
-// 2011.11.23 	began conversion to generic Picarro loader
-// 2011.old 		original developed as LoadG2301
-Function LoadPicarro( fileList, modelName, overwrite, concat, tsconv, options, [baseSFname, B] )
-	string fileList 					// semicolon separated list of full file paths to load
-	string modelName 			// specify model of analyzer:
-									// 	"G2301"		CH4/CO2
-									// 	"G1103" 	NH3
-									// 	....
-	variable overwrite 				// nonzero to overwrite existing waves and subfolders
-								//	applies to loaded waves and, if created, concatenated waves
-	variable concat				// nonzero to concatenate files sequentially after loading; negative to keep sources
-	variable tsconv 				// nonzero to convert date/time fields into Igor date-time wave; negative to keep sources
-	variable options 				// set bit fields for fine control
-		// bit#  value 			-option-
-		// 	-	0			put in subfolder = file's name
-		// 	0 	1			put in subfolder = file's parent folder name 	(overrides bit#1)
-		//	1 	2			put in subfolder = StringFromMaskedVar( <baseSFname>, # in <fileList> )
-		//	2 	4	 		skip existing subfolders instead of unique naming when <overwrite>==0
-		// 	3 	8 			force individual files to load in subfolders as if <fileList> had 2+ files
-	string baseSFname 			// default: "loadPicarro_file\nn"
-	string B						// passed-through to LoadWave/B parameter
-	
-	variable i, j, numFiles = ItemsInList(fileList), numWaves
-	string dfname, fullPath, model = RemoveEnding(LowerStr(modelName), ";")
-	DFREF tmpDF, savDF = GetDataFolderDFR()
-	Make/DF/FREE/N=(numFiles) destDFRs = NAN
-	baseSFname = SelectString( ParamIsDefault(baseSFname) || !strlen(baseSFname), baseSFname, "loadPicarro_file\nn" )
-	B = SelectString( ParamIsDefault(B) || !strlen(B), B, "F=6, N=datew; F=7, N=timew; " )
-	
-	for ( i=0; i<numFiles; i+=1 ) 
-		fullPath = StringFromList(i, fileList) 	
-		If ( TestBit(options,0) )			// bit#0: file's parent folder = subfolder name
-			dfname = CleanupName(ParseFilePath(0, fullPath, ":", 1, 1), 0)
-		elseif ( TestBit(options,1) )		// bit#1: use StringFromMaskedVar + # in <fileList> = subfolder name
-			dfname = StringFromMaskedVar(baseSFname, i, fixNNwidth=MinFieldWidth(numFiles))
-		else 						// use file's name = subfolder name
-			dfname = CleanupName(ParseFilePath(3, fullPath, ":", 0, 0), 0)
-		endif
-		If (DataFolderExists(dfname) && !overwrite && TestBit(options,2))
-			print "LoadPicarro: encountered existing subfolder <"+dfname+"> - skipping file "+fullPath
-			continue 	// skip loading 
-		endif
-		print "LoadPicarro: loading <"+fullPath+"> into <"+dfname+">"
-		
-		tmpDF = NewFreeDataFolder()
-		SetDataFolder tmpDF
-		strswitch (model)
-			case "g1104": 			// H2S 
-			case "g1106": 			// C2H4
-			case "g1107": 			// H2CO
-			case "g1114": 			// H2O2
-			case "g2103":			// NH3
-			case "g2203": 			// CH4, C2H2
-			case "g2204": 			// CH4, H2S
-			case "g2205": 			// HF
-				print "LoadPicarro: unsupported analyzer specified <"+modelName+"> - aborting."
-				return -1
-				break
-			case "g2301": 			// CO2, CH4, H2O in air
-				LoadWave/A/B=B/J/K=1/L={0,1,0,0,0}/Q/R={English,2,2,2,2,"Year-Month-DayOfMonth",40}/V={"\t, "," $",0,1}/W fullPath
-				break
-			case "g2301-m": 			// CO2, CH4, H2O for flight
-			case "g2311-f": 			// CO2, CH4, H2O for EC flux
-			case "g2302": 			// CO2, CH4, H2O in air
-			case "g2401": 			// CO, CO2, CH4, H2O in air
-			case "g2401-m": 			// CO, CO2, CH4, H2O in flight
-			case "g5105-i": 			// N2O
-			default: 
-				print "LoadPicarro: unsupported analyzer specified <"+modelName+"> - aborting."
-				return -1
-				break
-		endswitch
-		
-		numWaves = ItemsInList(S_waveNames)
-		If ( !numWaves )
-			print "LoadPicarro: no waves were loaded from file <"+fullPath+">"
-			continue
-		endif
-		
-		If (tsconv)
-			WAVE/Z datew, timew
-			If ( !WaveExists(datew) )
-				print "LoadPicarro: could not locate date wave after loading file <"+fullPath+"> - skipping timestamp conversion."
-			elseif ( !WaveExists(timew) )
-				print "LoadPicarro: could not locate time wave after loading file <"+fullPath+"> - skipping timestamp conversion."
-			elseif ( DimSize(datew,0) != DimSize(timew,0) )
-				print "LoadPicarro: date and time waves loaded from <"+fullPath+"> had different lengths - skipping conversion."
-			else
-				Make/D/N=(numpnts(datew)) timestamp = datew[p] + timew[p]
-				If ( tsconv > 0 )
-					KillWaves datew, timew
-				endif
-			endif
-		endif
-		
-		SetDataFolder savDF
-		If (numFiles > 1 || TestBit(options,3))
-			If (DataFolderExists(dfname))
-				If (overwrite)
-					KillDataFolder $dfname
-				else
-					dfname = UniqueName(dfname, 11, 0)
-				endif
-			endif
-			MoveDataFolder tmpDF, :		// drop free folder into this folder
-			RenameDataFolder freeroot, $dfname
-			destDFRs[i] = $dfname
-		else
-			// borrow i since there is no more outer loops (numFiles=1)
-			for (i=0; i<CountObjectsDFR(tmpDF, 1); i+=1)
-				string wname = GetIndexedObjNameDFR(tmpDF, 1, i)
-				If (overwrite)
-					Duplicate/O tmpDF:$wname, $wname
-				elseif (WaveExists($wname))
-					Duplicate tmpDF:$wname, $UniqueName(wname, 1, 0)
-				else
-					Duplicate tmpDF:$wname, $wname
-				endif
-			endfor
-		endif
-	endfor
-	
-	If ( numFiles > 1 && concat )
-		ConcatAcrossDFRs( destDFRs, "", overwrite, (concat<0 ? 0 : 1) )
-	endif
-	return 0
-End
-
-
-
-
-
-
-
-
-
-
-
 Function ProgressWindowTest(indefinite)
 	Variable indefinite
 	
@@ -241,16 +100,6 @@ Function ProgressWindowTest(indefinite)
 	endfor
 	KillWindow $pname
 End
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -307,124 +156,6 @@ end
 
 
 
-//
-Function PromptedLoadCSI( [type] )
-	variable type
-	string fileList, prefpath = "root:Packages:ART:PromptedLoadCSI:"
-	variable option
-	DFREF prefs = NewDataFolderX(prefpath)
-	
-	string fileFilter = StrVarOrDefault(prefpath+"gFileFilter", "")			// look up preferences
-	string fileExt = StrVarOrDefault(prefpath+"gFileExt", "")
-	variable recurse = NumVarOrDefault(prefpath+"gRecurse", 0)
-	variable level = NumVarOrDefault(prefpath+"gLevel", 0)
-	variable choice = NumVarOrDefault(prefpath+"gChoice", 0)	
-	variable fileType = NumVarOrDefault(prefpath+"gFileType", 0)
-	variable overwrite = NumVarOrDefault(prefpath+"gOverwrite", 0)
-	variable convert = NumVarOrDefault(prefpath+"gConvert", 0)
-	variable concat = NumVarOrDefault(prefpath+"gConcat", 0)
-	variable subfolders = NumVarOrDefault(prefpath+"gSubfolders", 0)
-	string mask = StrVarOrDefault(prefpath+"gMask", "loadCSI_file\nn")
-	variable subforone = NumVarOrDefault(prefpath+"gSubForOne", 0)
-	
-	If ( !type || ParamIsDefault(type) )
-		Open/D/R/MULT=1/F=ksFileFilter refnum
-		If ( !strlen(S_fileName) )
-			return -1
-		endif
-		fileList = ReplaceString(num2char(13), S_fileName, ";")
-	else	
-		string pname = ListFilesIn_Panel()
-		PauseForUser $pname
-		SVAR gS_fileName = S_fileName
-		fileList = gS_fileName
-		KillStrings/Z gS_fileName
-	endif
-	
-	If ( strlen(fileList) )
-		Prompt overwrite, "Overwrite existing waves and subfolders?", popup, "No;Yes;Skip existing subfolders;"
-		Prompt convert, "Convert string timestamps to Igor date/time?", popup, "No;Yes, delete source;Yes, keep source"
-		Prompt concat, "Concatenate sequential files (NOT ACTIVE)?", popup, "No;Yes, delete sources;Yes, keep sources;"
-		Prompt subfolders, "For multiple files, name subfolders...", popup, "using file name;using file's parent folder name;using a mask + consecutive integers"
-		Prompt mask, "Subfolder mask, if using"
-		Prompt subforone, "Create a subfolder even for a single file?", popup, "No;Yes"
-		DoPrompt "Load waves options", overwrite, convert, concat, subfolders, mask, subforone
-		If (V_flag)
-			return -1
-		endif
-		variable/G prefs:gOverwrite = overwrite							// save changes
-		variable/G prefs:gConvert = convert
-		variable/G prefs:gConcat = concat
-		variable/G prefs:gSubfolders = subfolders
-		string/G prefs:gMask = mask
-		variable/G prefs:gSubForOne = subforone
-		overwrite -= 1		// sets no/yes back to 0/1 for pass-thru			// decode options
-		if (overwrite == 2) 		// if skip existing
-			overwrite = 0
-			option = SetBit(option, 2)
-		endif
-		convert -= 1 		// set to 0,1,2
-		If (convert == 2)
-			convert = -1
-		endif
-		concat -=1		// set to 0,1,2
-		If (concat == 2)
-			concat = -1
-		endif
-		if (subfolders == 2) 		// from parents name
-			option = SetBit(option, 0)
-		elseif (subfolders == 3) 	// from masked var
-			option = SetBit(option, 1)
-		endif
-		if ( subforone - 1 )	// true for yes
-			option = SetBit(option, 3)
-		endif
-		if (strlen(mask))
-			LoadCSI( fileList, fileType, overwrite, convert, concat, option, baseSFname=mask)
-		else
-			LoadCSI( fileList, fileType, overwrite, convert, concat, option)
-		endif
-	endif
-	KillPath/Z loadcsitmp
-End
-
-
-
-
-
-Function PromptedLatLongDistance()
-	variable lat1 						// initial point latitude; N=(+), S=(-)
-	variable long1					// initial point longitdue; E=(+), W=(-)
-	variable lat2						// 2nd point latitude
-	variable long2					// 2nd point longitude
-	variable units						// unit selection index
-	string unitList = "km;m;mi;ft;"  		// available unit choices
-	string out						// results string to print
-	
-	Prompt lat1, "Point 1 decimal latitude: N=(+) S=(-)" 			// ask for latitude point 1
-	Prompt long1, "Point 1 decimal longitude: E=(+) W=(-)" 		// ask for longitude point 1
-	Prompt lat2, "Point 2 decimal latitude:" 						// ask for latitude point 2 
-	Prompt long2, "Point 2 decimal longitude:" 					// ask for longitude point 2
-	units += 1												// adjust to 1-indexed
-	Prompt units, "Select output units:", popup, unitList			// ask for units selection
-	DoPrompt "Haversine Lat-Long Distance Formula", lat1, long1, lat2, long2, units // prompt user
-	AbortOnValue V_flag, -1 									// quit if user cancels
-	units -= 1												// adjust back to 0-indexed
-
-	switch (units)
-		case 0:
-			return LatLongDistance( lat1, long1, lat2, long2 )/1000
-		case 1:
-			return LatLongDistance( lat1, long1, lat2, long2 )
-		case 2: 
-			return LatLongDistance( lat1, long1, lat2, long2 )*0.6213712/1000	// 0.6213712 mi / km
-		case 3:
-			return LatLongDistance( lat1, long1, lat2, long2 )*3.28083			// 3.28083 ft / m
-	endswitch
-	return -1
-End
-
-
 // doesn't handle gracefully without DFRs
 Function KillThenMove( src, dest )
 	wave src
@@ -440,17 +171,6 @@ Function KillThenMove( src, dest )
 	endif
 	return 0
 End
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -12,6 +12,9 @@ import sys
 
 if __name__ == "__main__":
     filelist = sys.argv[1:]
+    if not filelist:
+        filelist = [raw_input('Specify file: ')]
+    if not filelist: sys.exit(0)
 
     results = open('found_funcs.txt', 'w')
     results.write('Extracted functions \n-------------------\n')    
@@ -25,9 +28,10 @@ if __name__ == "__main__":
         ffile = open(each, 'r')
         results.write('\n' + each + '\n' + ('-'*len(each)) + '\n')
         for line in ffile:
-            if line.startswith('Function'):
+            if (line.startswith('Function') or line.startswith('ThreadSafe')):
                 num_found += 1
                 results.write(line)
         print "found %u functions" % num_found
+    raw_input('Press any key to continue...')
 
 
