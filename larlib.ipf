@@ -442,6 +442,26 @@ Function Cov( wx, wy, [p1, p2])
 End
 
 
+// returns cardinal representation (N, SE, WSW) of <inVal> which is wrapped into 0-360
+//
+// 2011.09		initial release
+Function/S D2Cardinal( inVal )
+	variable inVal
+	Make/FREE/T outStr = {"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"}
+	SetScale/P x, 0, 22.5, "", outStr
+	return outStr( ModWD(inVal) ) // not threadsafe, string
+End
+
+
+// returns <inVal> in radians
+//
+// 2010.old		initial release
+ThreadSafe Function D2R( inVal )
+	variable inVal
+	return inVal*(PI/180)
+End
+
+
 // returns daqfactory timestamp converted to igor date/time
 //
 // DAQfactory internally stores time as # of secs since 1970 (01/01?) 
@@ -451,6 +471,17 @@ ThreadSafe Function daqfactory2secs( timeval )
 	variable timeval
 	return timeval + date2secs(1970, 1, 1)
 End
+
+
+// returns day of the week (1=Sun; ... 7=Sat)
+//
+// Jan 1, 1904 was a Friday
+//
+// 2011.11.17 	written
+Function DayOfWeek( tstamp )
+	variable tstamp					// igor date/time value		sec
+	return mod( 5+trunc(tstamp/86400), 7 )+1
+end
 
 
 // returns density of air in g/m^3 or mol/m^3 using ideal gas law
@@ -473,6 +504,93 @@ Function DensityOfAir( T_, P_ [, inMoles] )
 		return P_ / (kR_dryair * (T_+273.15)) 
 	endif
 end
+
+
+// applies soft spike filter to entire wave following method of HaPe Schmid; input wave IS modified; optional
+// point boundaries permit applying filter to subsection of wave => see IntervalDespikeHaPe() for application to time series
+//
+// 	Schmid, HaPe, C. Susan B. Grimmond, Ford Cropley, Brian Offerle, and Hong-Bing Su. "Measurements 
+// 	of CO2 and energy fluxes over a mixed hardwood forest in the mid-western United States." Agricultural 
+// 	and Forest Meteorology. 103 (2000): 357-374.
+// 		"For each 15min period and variable, the means and variances are calculated. From these diagnostics,
+// 		a threshold for spikes is determined as a multiple of the standard deviation (3.6 S.D. initially, increased 
+//		by 0.3 after each pass). On each pass, a soft spike is registered if the fluctuation from the mean is larger 
+//		than the threshold value, and if the duration of the spike is three or fewer records, corresponding to a 
+//		persistence of 0.3s, for the 10Hz sampling rate. Longer-lasting departures from the period mean are taken 
+// 		to indicate possible physical events. After each pass, if spikes are detected, the mean and variance are 
+//		adjusted to exclude data marked as spikes and the process repeated, until either there are no more new 
+//		spikes or the maximum or three iterations is completed (which is rarely the case)."
+//
+// 2012.06.12 	added optional parameter to specify max persistence of registered spikes
+// 2011.11.21 	split logic to create an Interval_ function and independent function
+// 2011.11.18		adapted from legacy function 
+Function/WAVE DespikeHaPe( wname, tstamp [, multiplier, increment, passes, duration, p1, p2] )
+	wave wname							// target wave ref
+	wave/Z/D tstamp						// double-precision Igor date-time wave; used to evalute spike persistence 
+										// 	time; if wave does not exist, X-scaling of <wname> is used instead 
+	variable multiplier 						// optionally specify different base multipier (def: 3.6)
+	variable increment 					// optionally specify different per-pass increment (def: 0.3)
+	variable passes 						// optionally specify number of passes (def: 3)
+	variable duration 						// optionally specify max persistence to be spike, seconds (def: 0.3)
+	variable p1, p2						// optional inclusive point boundaries
+	
+	If ( !WaveType(wname) || WaveDims(wname)>1 )
+		print "DespikeHaPe: source wave <"+NameOfWave(wname)+"> is non-numeric or multidimensional - aborting"
+	endif
+	
+	If ( !WaveExists(tstamp) )
+		Make/D/FREE/N=(DimSize(wname,0)) tstamp = leftx(wname) + deltax(wname)*p
+	endif
+	multiplier = ParamIsDefault(multiplier) ? 3.6 : multiplier
+	increment = ParamIsDefault(increment) ? 0.3 : increment
+	passes = ParamIsDefault(passes) ? 3 : passes
+	duration = ParamIsDefault(duration) ? 0.3 : duration
+	p1 = Limit(p1, 0, p1)
+	p2 = Limit( (ParamIsDefault(p2) ? DimSize(wname,0)-1 : p2), p1, DimSize(wname,0)-1 )
+	
+	variable pn, avg, sdev, found, mult, threshold, pp, pp0
+	Make/FREE/N=(passes,2) results = 0
+	SetDimLabel 1, 0, spikes, results
+	SetDimLabel 1, 1, points, results
+
+	for (pn=0; pn<passes; pn+=1)			// for each pass through time series
+		avg = mean(wname, pnt2x(wname,p1), pnt2x(wname,p2))
+		sdev = sqrt( variance(wname, pnt2x(wname,p1), pnt2x(wname,p2)) )		
+		found = 0
+		mult = multiplier + pn*increment
+		threshold = abs(mult*sdev)
+		for (pp=p1; pp<p2+1; pp+=1)		// for each point in subinterval
+			If ( numtype(wname[pp]) )					// for NANs, just skip
+				continue
+			elseif ( abs(wname[pp] - avg) > threshold )	// if spike criterea is met
+				pp0 = found ? pp0 : pp						// capture pp=>pp0 only when new spike observed
+				found = found ? found : 1						// register spike is observed if not already
+			elseif ( found )							// criterea no longer met but spike was observed
+				found = 0
+				If ( (tstamp[pp-1] - tstamp[pp0]) <= duration )
+				//	print/D "spike registered between",pp0,"and",pp-1	
+					wname[pp0, pp-1] = NAN
+					results[pn][%spikes] += 1
+					results[pn][%points] += (pp-pp0)
+				endif
+			endif
+		endfor			// each point
+	endfor			// each pass
+	return results
+End	
+
+
+// returns dew point based on vapor pressure
+//
+// 	Bolton, D., 1980: The Computation of Equivalent Potential Temperature. Monthly Weather
+//	Review. Vol 108, 1046-1053. 
+//		Eqn	11: 	T = ( 243.5*ln(es) - 440.8 ) / ( 19.48 - ln(es) )			es = sat. vapor pressure, mbar
+//
+// 2011.11.08 written
+Function DewPoint( e_ )
+	variable e_ 		// H2O vapor pressure 		mbar = hPa
+	return (243.5 * ln(e_) - 440.8) / (19.48 - ln(e_))	// Celcius
+End
 
 
 // creates boolean waves denoting presence or absence of diagnostics flags
@@ -650,124 +768,6 @@ Function/WAVE DiagnoseLI7500( diagWord, option )
 	endif
 	wave outref = W_li7500_flags
 	return outref
-End
-
-
-// returns day of the week (1=Sun; ... 7=Sat)
-//
-// Jan 1, 1904 was a Friday
-//
-// 2011.11.17 	written
-Function DayOfWeek( tstamp )
-	variable tstamp					// igor date/time value		sec
-	return mod( 5+trunc(tstamp/86400), 7 )+1
-end
-
-
-// applies soft spike filter to entire wave following method of HaPe Schmid; input wave IS modified; optional
-// point boundaries permit applying filter to subsection of wave => see IntervalDespikeHaPe() for application to time series
-//
-// 	Schmid, HaPe, C. Susan B. Grimmond, Ford Cropley, Brian Offerle, and Hong-Bing Su. "Measurements 
-// 	of CO2 and energy fluxes over a mixed hardwood forest in the mid-western United States." Agricultural 
-// 	and Forest Meteorology. 103 (2000): 357-374.
-// 		"For each 15min period and variable, the means and variances are calculated. From these diagnostics,
-// 		a threshold for spikes is determined as a multiple of the standard deviation (3.6 S.D. initially, increased 
-//		by 0.3 after each pass). On each pass, a soft spike is registered if the fluctuation from the mean is larger 
-//		than the threshold value, and if the duration of the spike is three or fewer records, corresponding to a 
-//		persistence of 0.3s, for the 10Hz sampling rate. Longer-lasting departures from the period mean are taken 
-// 		to indicate possible physical events. After each pass, if spikes are detected, the mean and variance are 
-//		adjusted to exclude data marked as spikes and the process repeated, until either there are no more new 
-//		spikes or the maximum or three iterations is completed (which is rarely the case)."
-//
-// 2012.06.12 	added optional parameter to specify max persistence of registered spikes
-// 2011.11.21 	split logic to create an Interval_ function and independent function
-// 2011.11.18		adapted from legacy function 
-Function/WAVE DespikeHaPe( wname, tstamp [, multiplier, increment, passes, duration, p1, p2] )
-	wave wname							// target wave ref
-	wave/Z/D tstamp						// double-precision Igor date-time wave; used to evalute spike persistence 
-										// 	time; if wave does not exist, X-scaling of <wname> is used instead 
-	variable multiplier 						// optionally specify different base multipier (def: 3.6)
-	variable increment 					// optionally specify different per-pass increment (def: 0.3)
-	variable passes 						// optionally specify number of passes (def: 3)
-	variable duration 						// optionally specify max persistence to be spike, seconds (def: 0.3)
-	variable p1, p2						// optional inclusive point boundaries
-	
-	If ( !WaveType(wname) || WaveDims(wname)>1 )
-		print "DespikeHaPe: source wave <"+NameOfWave(wname)+"> is non-numeric or multidimensional - aborting"
-	endif
-	
-	If ( !WaveExists(tstamp) )
-		Make/D/FREE/N=(DimSize(wname,0)) tstamp = leftx(wname) + deltax(wname)*p
-	endif
-	multiplier = ParamIsDefault(multiplier) ? 3.6 : multiplier
-	increment = ParamIsDefault(increment) ? 0.3 : increment
-	passes = ParamIsDefault(passes) ? 3 : passes
-	duration = ParamIsDefault(duration) ? 0.3 : duration
-	p1 = Limit(p1, 0, p1)
-	p2 = Limit( (ParamIsDefault(p2) ? DimSize(wname,0)-1 : p2), p1, DimSize(wname,0)-1 )
-	
-	variable pn, avg, sdev, found, mult, threshold, pp, pp0
-	Make/FREE/N=(passes,2) results = 0
-	SetDimLabel 1, 0, spikes, results
-	SetDimLabel 1, 1, points, results
-
-	for (pn=0; pn<passes; pn+=1)			// for each pass through time series
-		avg = mean(wname, pnt2x(wname,p1), pnt2x(wname,p2))
-		sdev = sqrt( variance(wname, pnt2x(wname,p1), pnt2x(wname,p2)) )		
-		found = 0
-		mult = multiplier + pn*increment
-		threshold = abs(mult*sdev)
-		for (pp=p1; pp<p2+1; pp+=1)		// for each point in subinterval
-			If ( numtype(wname[pp]) )					// for NANs, just skip
-				continue
-			elseif ( abs(wname[pp] - avg) > threshold )	// if spike criterea is met
-				pp0 = found ? pp0 : pp						// capture pp=>pp0 only when new spike observed
-				found = found ? found : 1						// register spike is observed if not already
-			elseif ( found )							// criterea no longer met but spike was observed
-				found = 0
-				If ( (tstamp[pp-1] - tstamp[pp0]) <= duration )
-				//	print/D "spike registered between",pp0,"and",pp-1	
-					wname[pp0, pp-1] = NAN
-					results[pn][%spikes] += 1
-					results[pn][%points] += (pp-pp0)
-				endif
-			endif
-		endfor			// each point
-	endfor			// each pass
-	return results
-End	
-
-
-// returns dew point based on vapor pressure
-//
-// 	Bolton, D., 1980: The Computation of Equivalent Potential Temperature. Monthly Weather
-//	Review. Vol 108, 1046-1053. 
-//		Eqn	11: 	T = ( 243.5*ln(es) - 440.8 ) / ( 19.48 - ln(es) )			es = sat. vapor pressure, mbar
-//
-// 2011.11.08 written
-Function DewPoint( e_ )
-	variable e_ 		// H2O vapor pressure 		mbar = hPa
-	return (243.5 * ln(e_) - 440.8) / (19.48 - ln(e_))	// Celcius
-End
-
-
-// returns cardinal representation (N, SE, WSW) of <inVal> which is wrapped into 0-360
-//
-// 2011.09		initial release
-Function/S D2Cardinal( inVal )
-	variable inVal
-	Make/FREE/T outStr = {"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"}
-	SetScale/P x, 0, 22.5, "", outStr
-	return outStr( ModWD(inVal) ) // not threadsafe, string
-End
-
-
-// returns <inVal> in radians
-//
-// 2010.old		initial release
-ThreadSafe Function D2R( inVal )
-	variable inVal
-	return inVal*(PI/180)
 End
 
 
@@ -1254,28 +1254,6 @@ Function/S GetDataFolderList( [seePkgs] )
 End
 
 
-// returns element number of first NAN found or 0 if none
-// special case element[0] returns -1
-//
-// 2011.11.22 	removed /D flag from <wname> param
-// 2011.10.11		revised Limit()s for point boundaries
-// 2011.10.07		added optional point range parameters
-// 2011.old		initial release
-Function HasNans( wname, [p1, p2] )
-	wave wname		// wave to search in
-	variable p1, p2		// optional point boundaries (default to full range)
-	variable i
-	p1 = Limit(p1, 0, p1)
-	p2 = Limit( (ParamIsDefault(p2) ? numpnts(wname)-1 : p2), p1, numpnts(wname)-1 )
-	for (i=p1; i<=p2; i+=1)
-		if (numtype(wname[i])==2)
-			return ( i ? i : -1 ) // ensures 0 isn't returned if @ 1st element
-		endif
-	endfor
-	return 0
-End
-
-
 // returns element number of first found duplicate DF reference in <wrefs>
 //
 // 2011.old		initial release
@@ -1305,6 +1283,28 @@ Function HasDuplicateWRefs( wrefs )
 				return j	// not i because it could still be 0
 			endif
 		endfor
+	endfor
+	return 0
+End
+
+
+// returns element number of first NAN found or 0 if none
+// special case element[0] returns -1
+//
+// 2011.11.22 	removed /D flag from <wname> param
+// 2011.10.11		revised Limit()s for point boundaries
+// 2011.10.07		added optional point range parameters
+// 2011.old		initial release
+Function HasNans( wname, [p1, p2] )
+	wave wname		// wave to search in
+	variable p1, p2		// optional point boundaries (default to full range)
+	variable i
+	p1 = Limit(p1, 0, p1)
+	p2 = Limit( (ParamIsDefault(p2) ? numpnts(wname)-1 : p2), p1, numpnts(wname)-1 )
+	for (i=p1; i<=p2; i+=1)
+		if (numtype(wname[i])==2)
+			return ( i ? i : -1 ) // ensures 0 isn't returned if @ 1st element
+		endif
 	endfor
 	return 0
 End
@@ -3183,6 +3183,27 @@ Function/S NewProgressWindow()
 	return myname
 End
 
+// returns the monin-obukhov length (meters) from variables 
+//
+// 	http://amsglossary.allenpress.com/glossary/search?id=monin-obukhov-similarity-theory1
+//	http://amsglossary.allenpress.com/glossary/search?id=obukhov-length1
+// 		L = [ -1 * <Tv> * (u*)^3 ] / [ k * G * Cov(w, Tv) ]		u* = friction velocity			m / s
+//														Tv = virtual temp				Kelvin
+//			<...> denotes averaging						k = von Karman's constant 	dimensionless
+//														G = gravity force				m / s^2
+//														w = vertical wind component 	m / s
+// 	https://secure.wikimedia.org/wikipedia/en/wiki/Monin-Obukhov_Length
+//		provides an identical definition, albiet with the virtual _potential_ temp
+// 
+// 2011.11.22 	derived from ObukhovLength()
+Function ObukhovLength( frictionVelocity, meanTv, cov_w_Tv )
+	variable frictionVelocity		// friction velocity								m / s
+	variable meanTv 				// mean virtual temperature						Celcius
+	variable cov_w_Tv				// covariance of vertical wind and virtual temp		C m / s = K m / s
+	
+	return ( -1* (meanTv+273.15) * frictionVelocity^3 ) / ( kVonKarman * kGravity * cov_w_Tv )
+End
+
 // returns the monin-obukhov length (meters) from time series
 //
 // 	http://amsglossary.allenpress.com/glossary/search?id=monin-obukhov-similarity-theory1
@@ -3213,27 +3234,6 @@ Function ObukhovLengthTS( u_, v_, w_, Tv [, p1, p2] )
 	mTv = mean( Tv, pnt2x(Tv,p1), pnt2x(Tv,p2) )
 	cov_w_Tv = Cov( w_, Tv, p1=p1, p2=p2 )
 	return ObukhovLength( ustar, mTv, cov_w_Tv )
-End
-
-// returns the monin-obukhov length (meters) from variables 
-//
-// 	http://amsglossary.allenpress.com/glossary/search?id=monin-obukhov-similarity-theory1
-//	http://amsglossary.allenpress.com/glossary/search?id=obukhov-length1
-// 		L = [ -1 * <Tv> * (u*)^3 ] / [ k * G * Cov(w, Tv) ]		u* = friction velocity			m / s
-//														Tv = virtual temp				Kelvin
-//			<...> denotes averaging						k = von Karman's constant 	dimensionless
-//														G = gravity force				m / s^2
-//														w = vertical wind component 	m / s
-// 	https://secure.wikimedia.org/wikipedia/en/wiki/Monin-Obukhov_Length
-//		provides an identical definition, albiet with the virtual _potential_ temp
-// 
-// 2011.11.22 	derived from ObukhovLength()
-Function ObukhovLength( frictionVelocity, meanTv, cov_w_Tv )
-	variable frictionVelocity		// friction velocity								m / s
-	variable meanTv 				// mean virtual temperature						Celcius
-	variable cov_w_Tv				// covariance of vertical wind and virtual temp		C m / s = K m / s
-	
-	return ( -1* (meanTv+273.15) * frictionVelocity^3 ) / ( kVonKarman * kGravity * cov_w_Tv )
 End
 
 
@@ -3772,6 +3772,19 @@ Function SpecificHumidityVP( e_, P_ )
 End
 
 
+// returns numeric value of timestamp represented in <timestring>
+// use TimeRegEx() to get the correct format; double quotes are stripped prior to parsing
+//
+// 2011.08		converted from interactive function to utility function
+// 2010.old		initial release
+Function string2secs( timestring, format ) // not threadsafe, string
+	string timestring, format
+	variable yy, mm, dd, h, m, s
+	sscanf ReplaceString("\"", timestring, ""), format, yy, mm, dd, h, m, s
+	return date2secs(yy,mm,dd) + h*3600 + m*60 + s
+End
+
+
 // returns maskStr after replacing appropriate field codes with values derived from inVal
 // 	fixed width codes		value derived from inVal	
 //	----------------			----------------------------------
@@ -3854,19 +3867,6 @@ Function/S StringFromMaskedVar(maskStr, inVal, [fixNNwidth]) // not threadsafe, 
 	//print "[FIXED] #["+nf+"] yr["+yyf+"] mo["+mmf+"] day["+ddf+"] milhr["+hnf+"] normhr["+hmf+"] min["+mf+"] sec["+sf+"]"
 	//print "[VARY] #["+nv+"] mo["+mmv+"] day["+ddv+"] milhr["+hnv+"] normhr["+hmv+"] min["+mv+"] sec["+sv+"]"
 	return maskStr
-End
-
-
-// returns numeric value of timestamp represented in <timestring>
-// use TimeRegEx() to get the correct format; double quotes are stripped prior to parsing
-//
-// 2011.08		converted from interactive function to utility function
-// 2010.old		initial release
-Function string2secs( timestring, format ) // not threadsafe, string
-	string timestring, format
-	variable yy, mm, dd, h, m, s
-	sscanf ReplaceString("\"", timestring, ""), format, yy, mm, dd, h, m, s
-	return date2secs(yy,mm,dd) + h*3600 + m*60 + s
 End
 
 
