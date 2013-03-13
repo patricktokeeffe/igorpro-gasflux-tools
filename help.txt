@@ -1,5 +1,5 @@
 •	Laboratory for Atmospheric Research Package
-	Version 0.2 
+	Version 0.2b 
 •	Overview
 larpkg is a collection of Igor Pro functions focusing on time series, atmospheric fluxes, meterological parameters, and handling of a few less common scientific data formats. While some functions are decidedly narrow in focus, many are general and would be useful in other contexts. Most higher-level functions come with a host of optional arguments - it's usually worth your time to know what they do!
 •	Installation
@@ -26,7 +26,8 @@ larpkg-<version>.7z\
 		7zip920.exe 	Installation binary for open-source archive utility 7-zip version 9.2
 	larpkg Help.ihf 	This help file, compiled for use with Igor Pro
 	larpkg Help.pdf 	This help file, printed to PDF/A format for reading without Igor Pro
-	larlib.ipf 	Procedure file containing core function set
+	larpkg.ipf 	Procedure file containing core function set
+	licenses.txt 	Relevant licensing for the release
 Additionally, you should be able to attain the help file and procedure file as standalone files. 
 
 Dependencies
@@ -34,9 +35,13 @@ The following procedure files are activated by larpkg because they possess funct
 •	RemovePoints (WaveMetrics Procedures:Data Manipulation:) 
 
 Licensing
-Presently, larpkg is unlicensed. The developer expects to have approval to apply the open-source MIT license retroactively so for all intents and purposes, consider larpkg to be licensed under the MIT license [http://mit-license.org/].
-CmdUtils is licensed under the General Public License version 2 (GPLv2) available online at http://www.gnu.org/licenses/gpl-2.0.html, also in the included file \bin\cmdutils\GPL.txt. 
-7-Zip is licensed under the 7-Zip license, available online at http://www.7-zip.org/license.txt, also in the text file licenses.txt.
+This information is available in the file licenses.txt in the packaged distributions. 
+•	larpkg is covered by the MIT license, http://mit-license.org/
+•	CmdUtils is covered by the GNU General Public License version 2 (GPLv2), 
+	http://www.gnu.org/licenses/gpl-2.0.html
+•	7-Zip is covered by the GNU Lesser General Public License version 2.1 (LGPL), 
+	http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html; 7z.dll is also covered by the unRAR 
+	restriction. Details at http://www.7-zip.org/license.txt. 
 
 Temporary Install
 Opening the procedure files and selecting 'Macros > Compile' is sufficient to use the functions in larpkg. Be aware, however, that if you write procedures which use functions from larpkg and fail to reopen the procedure file next time the experiment is opened, your procedure will not compile until the relevant larpkg procedure file is opened as well. 

@@ -1,10 +1,9 @@
+== Licensing ==
+
 
 larpkg
 ======
-Unlicensed at present; please consider it MIT licensed for all intents and 
-purposes (http://mit-license.org/):
-
-The MIT License (MIT)
+The MIT License (MIT), available at http://mit-license.org/
 
 Copyright © 2013 
 Laboratory for Atmospheric Research at Washington State University
@@ -31,68 +30,24 @@ SOFTWARE.
 
 CmdUtils
 ========
-GPLv2 license, available at http://www.gnu.org/licenses/gpl-2.0.html 
-
-Please see 'GPL.txt' within .\bin for full license text.
+CmdUtils is covered by the GNU General Public License version 2 (GPLv2)
+    http://www.gnu.org/licenses/gpl-2.0.html 
 
 
 
 7-Zip 
 =====
-7-Zip license, available at http://www.7-zip.org/license.txt 
-
-This copy has been reformatted for this text file and is substantially 
-unmodified:
-
-7-Zip
-  ~~~~~
-  License for use and distribution
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-  7-Zip Copyright (C) 1999-2012 Igor Pavlov.
-
-  Licenses for files are:
-
-    1) 7z.dll: GNU LGPL + unRAR restriction
-    2) All other files:  GNU LGPL
-
-  The GNU LGPL + unRAR restriction means that you must follow both 
-  GNU LGPL rules and unRAR restriction rules.
-
-  Note: 
-    You can use 7-Zip on any computer, including a computer in a commercial 
-    organization. You don't need to register or pay for 7-Zip.
-
-  GNU LGPL information
-  --------------------
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2.1 of the License, or (at your option) any later version.
-
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You can receive a copy of the GNU Lesser General Public License from 
-    http://www.gnu.org/
-
-  unRAR restriction
-  -----------------
-    The decompression engine for RAR archives was developed using source 
-    code of unRAR program.
-    All copyrights to original unRAR code are owned by Alexander Roshal.
-
+7-Zip is covered by the GNU Lesser General Public License version 2.1 
+(LGPLv2.1); the 7z.dll is also covered by the unRAR restriction. 
+    http://www.7-zip.org/license.txt 
+    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+    
     The license for original unRAR code has the following restriction:
 
-      The unRAR sources cannot be used to re-create the RAR compression 
-      algorithm, which is proprietary. Distribution of modified unRAR sources 
-      in separate form or as a part of other software is permitted, provided 
-      that it is clearly stated in the documentation and source comments that 
-      the code may not be used to develop a RAR (WinRAR) compatible archiver.
-
-  --
-  Igor Pavlov
+      The unRAR sources cannot be used to re-create the RAR compression algorithm, 
+      which is proprietary. Distribution of modified unRAR sources in separate form 
+      or as a part of other software is permitted, provided that it is clearly
+      stated in the documentation and source comments that the code may
+      not be used to develop a RAR (WinRAR) compatible archiver.
 
 

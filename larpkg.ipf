@@ -5,6 +5,8 @@
 // 	pokeeffe@wsu.edu				Dept. of Civil & Environmental Engineering 
 // 	509.335.7246 					Washington State University 
 //
+//	Licensed under the MIT License, available at http://opensource.org/licenses/MIT
+//
 //=====================================================================================
 #pragma rtGlobals = 1				// Use modern global access method.
 #pragma IgorVersion = 6.20
