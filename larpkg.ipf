@@ -3665,6 +3665,9 @@ End
 //
 // resamples each wave in <wrefs> at <newRate> in seconds; 
 //
+// create free wave of wave refs on command line using {} like so:
+// 	ResampleXY( timestamp, {singlewave}, newRate )
+//
 // 2011.09-10 	initial implementation
 Function ResampleXY( tstamp, wrefs , newRate )
 	wave/D tstamp 			// double precision timestamp wave 
