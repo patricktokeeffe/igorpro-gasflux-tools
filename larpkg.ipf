@@ -2298,10 +2298,10 @@ End
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>5th parameter
 // 2011.10.07		intial release
-Function/WAVE IntervalWindDirVectorMean( Ux, Uy, azimuth, flag, tstamp, interval, aligned, [bp] )
+Function/WAVE IntervalWindDirVectorMean( Ux, Uy, azimuth, type, tstamp, interval, aligned, [bp] )
 	wave Ux, Uy			// horizontal wind components
 	variable azimuth		// sonic orientation, deg E of true N
-	variable flag			// reserved for sonic type code
+	variable type			// reserved for sonic type code
 	wave/D tstamp		// double precision timestamp wave
 	variable interval		// size of interval in seconds
 	variable aligned		// nonzero to start/stop on multiples of <interval>
@@ -2329,9 +2329,9 @@ Function/WAVE IntervalWindDirVectorMean( Ux, Uy, azimuth, flag, tstamp, interval
 			Duplicate/FREE/R=[lo,hi] Uy, suby
 			Make/FREE/N=2/WAVE nanlist = {subx, suby}
 			print "removed", RemoveNansW(nanlist), "nans in interval", oi
-			wout[oi] = WindDirVectorMean( subx, suby, azimuth, flag )
+			wout[oi] = WindDirVectorMean( subx, suby, azimuth, type )
 		else
-			wout[oi] = WindDirVectorMean( Ux, Uy, azimuth, flag, p1=lo, p2=hi )
+			wout[oi] = WindDirVectorMean( Ux, Uy, azimuth, type, p1=lo, p2=hi )
 		endif
 	endfor
 	return wout
@@ -4644,10 +4644,10 @@ End
 // 2011.09		marked threadsafe
 // 2011.old		made into separate utility function
 // 2010.old		initial release (in a monolithic function)
-ThreadSafe Function WindDirVectorMean( Ux, Uy, azimuth, flag, [p1, p2] )
+ThreadSafe Function WindDirVectorMean( Ux, Uy, azimuth, type, [p1, p2] )
 	wave Ux, Uy 			// horizontal wind components U, V
 	variable azimuth 		// sonic azimuth+declination
-	variable flag 			// reserved for sonic type code
+	variable type 			// reserved for sonic type code
 	variable p1, p2		// optional point boundaries (inclusive) default to whole range
 	
 	If ( !SameNumPnts( Ux, Uy ) ) 						// if not same length
@@ -4655,7 +4655,7 @@ ThreadSafe Function WindDirVectorMean( Ux, Uy, azimuth, flag, [p1, p2] )
 	endif
 	p1 = Limit(p1, 0, p1)
 	p2 = Limit( (ParamIsDefault(p2) ? numpnts(ux)-1 : p2), p1, numpnts(ux)-1 )
-	return WindDir(mean(Ux,pnt2x(Ux,p1),pnt2x(Ux,p2)), mean(Uy,pnt2x(Uy,p1),pnt2x(Uy,p2)), azimuth, flag)
+	return WindDir(mean(Ux,pnt2x(Ux,p1),pnt2x(Ux,p2)), mean(Uy,pnt2x(Uy,p1),pnt2x(Uy,p2)), azimuth, type)
 End
 
 
