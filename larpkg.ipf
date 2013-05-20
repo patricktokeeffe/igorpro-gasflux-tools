@@ -888,6 +888,7 @@ End
 //
 // weak source: Eqn 11.20 Arya, S. Pal. Introduction to Micrometerology. 2nd Ed. 2001. Academic Press.
 //
+// 2013.05.20 	fix numpnts check
 // 2012.06.18 	*bug* fixed units scaling which previously resulted in values 100X too small
 // 2011.11.11 	written
 Function ECSensibleHeat( T_, w_ , P_, Q_, [p1, p2] )
@@ -897,7 +898,8 @@ Function ECSensibleHeat( T_, w_ , P_, Q_, [p1, p2] )
 	wave Q_ 			// specific humidity 				dimensionless, 0-1
 	variable p1, p2		// optional point boundaries, inclusive
 	
-	If ( !SameNumPnts(T_, w_) || (WaveExists(P_) && !SameNumPnts(T_, P_)) )
+	Make/FREE/WAVE/N=5 wlist = {T_, w_, P_, Q_}
+	If ( !SameNumPntsW( wlist ) )
 		print "ECSensibleHeat: input waves were not the same length - aborted"
 		return NAN
 	endif
