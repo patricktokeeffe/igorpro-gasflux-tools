@@ -914,6 +914,27 @@ Function ECSensibleHeat( T_, w_ , P_, Q_, [p1, p2] )
 End
 
 
+// return eddy covariance flux of CO2 from gas density and wind measurements
+// value will be NAN if arguments contain NAN
+//
+// 2013.05.20 	written
+Function EC_co2( co2, w_, [p1, p2] )
+	wave co2 			// density of carbon dioxide			g / m^2 or mol/m^2
+	wave w_				// vertical wind speed 					m / s
+	variable p1, p2 		// optional point boundaries, inclusive
+	
+	If ( !SameNumPnts(co2, w_) )
+		print "EC_co2: input waves are not all the same length - aborting"
+		return NAN
+	endif
+	p1 = Limit(p1, 0, p1)
+	p2 = Limit( (ParamIsDefault(p2) ? DimSize(co2,0)-1 : p2), p1, DimSize(co2,0)-1 ) 
+	
+	return Cov( co2, w_, p1=p1, p2=p2 )
+End
+
+
+
 // TODO
 //	verify results of this function
 //
@@ -1535,6 +1556,48 @@ Function/WAVE IntervalDespikeHaPe( wname, tstamp, interval, aligned [, multiplie
 	
 	return results
 End	
+
+
+// returns wave with CO2 flux calculated for each subinterval using eddy covariance
+//
+// 2013.05.20 	written
+Function/WAVE IntervalEC_co2( co2, w_, tstamp, interval, aligned [, bp ] )
+	wave co2 			// carbon dioxoide mass density	g / m^3
+	wave w_ 			// vertical wind component 			m / s
+	wave/D tstamp 		// timestamp						igor date/time
+	variable interval		// averaging period				seconds
+	variable aligned 		// nonzero to start/stop on whole intervals
+	wave bp				// optional interval boundary points wave
+	
+	If ( !SameNumRows(co2, w_) || !SameNumRows(w_, tstamp) )
+		print "IntervalECLatentHeat: input waves had different lengths - aborted"
+		return NAN
+	elseif ( !WaveExists(bp) )
+		wave bp = IntervalBoundaries( tstamp, interval, aligned )
+	endif
+	Make/FREE/N=(DimSize(bp,0)) wout
+	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	
+	variable oi, lo, hi
+	for (oi=0; oi<DimSize(bp, 0); oi+=1)
+		lo = bp[oi][%lo]
+		hi = bp[oi][%hi]
+		If ( numtype(lo) || numtype(hi) )
+			wout[oi] = NAN
+			continue
+		endif
+		If (HasNans(co2,p1=lo,p2=hi) || HasNans(w_,p1=lo,p2=hi) )
+			Duplicate/FREE/R=[lo,hi] co2, subco2
+			Duplicate/FREE/R=[lo,hi] w_, subw
+			Make/FREE/WAVE/N=2 nanlist = {subco2, subw}
+			RemoveNansW( nanlist )
+			wout[oi] = EC_co2( subco2, subw )
+		else
+			wout[oi] = EC_co2( co2, w_, p1=lo, p2=hi )
+		endif
+	endfor
+	return wout
+End
 
 
 // TODO
