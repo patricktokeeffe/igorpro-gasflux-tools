@@ -678,10 +678,11 @@ End
 
 // creates boolean waves denoting presence or absence of diagnostics flags
 //
+// 2013.05.23 	made arg `option` optional
 // 2011.11.16 	renamed from CSAT3diagnostics()
 // 2011.10.31		reduced If(...) structure to boolean additions under default switch statment
 // 2011.09		initial release
-Function/WAVE DiagnoseCSAT3( diagWord, option )
+Function/WAVE DiagnoseCSAT3( diagWord [, option] )
 	wave diagWord		// diagnostic word from CSAT3
 	variable option		// set bit true to make additional waves (15=all)
 						//	0	(1)		speed of sound diff. boolean	W_csat_del_T
@@ -690,6 +691,7 @@ Function/WAVE DiagnoseCSAT3( diagWord, option )
 						//	3	(8)		low amplitude boolean			W_csat_amp_l
 						//	...			[all other bits reserved]
 	variable i, val, n = numpnts(diagWord)
+	option = (ParamIsDefault(option) ? 0 : option)
 	Make/B/U/FREE/N=(n) W_csat3_flags, W_csat3_del_T, W_csat3_sig_lck, W_csat3_amp_h, W_csat3_amp_l
 	for (i=0; i<numpnts(diagWord); i+=1)
 		val = diagWord[i]
@@ -3249,7 +3251,7 @@ End
 Function MixingRatio( C_, T_, P_, h2o [, inMass] )
 	variable C_ 			// trace gas molar density		mol / m^3 	OR 		g / m^3
 	variable T_			// ambient temp				Celcius
-	variable P_			// barometric press.			mbar = hPa
+	variable P_			// barometric press.			mbar = hPa 	(1kPa = 10hPa)
 	variable h2o 			// H2O molar density			mol / m^3 	OR 		g / m^3
 	variable inMass		// nonzero to use mass units
 	If ( inMass )
