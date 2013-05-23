@@ -1503,10 +1503,11 @@ End
 //		adjusted to exclude data marked as spikes and the process repeated, until either there are no more new 
 //		spikes or the maximum or three iterations is completed (which is rarely the case)."
 //
+// 2013.05.23 	add `duration` arg to specify max spike duration
 // 2011.11.22 	added SameNumRows() check
 // 2011.11.21 	split logic to create an Interval_ function and independent function
 // 2011.11.18		adapted from legacy function 
-Function/WAVE IntervalDespikeHaPe( wname, tstamp, interval, aligned [, multiplier, increment, passes, bp] )
+Function/WAVE IntervalDespikeHaPe( wname, tstamp, interval, aligned [, multiplier, increment, passes, duration, bp] )
 	wave wname							// target wave ref
 	wave/D tstamp						// double-precision date/time wave
 	variable interval						// size of interval to despike; HaPe used 15min
@@ -1514,6 +1515,7 @@ Function/WAVE IntervalDespikeHaPe( wname, tstamp, interval, aligned [, multiplie
 	variable multiplier 						// optionally specify different base multipier (def: 3.6)
 	variable increment 					// optionally specify different per-pass increment (def: 0.3)
 	variable passes 						// optionally specify number of passes (def: 3)
+	variable duration 						// optionally specify max duration (secs) that registers as spike (def: 0.3)
 	wave bp								// optional, interval boundary points wave as returned by IntervalBoundaries
 	
 	If ( !SameNumRows(wname, tstamp) )
@@ -1525,6 +1527,7 @@ Function/WAVE IntervalDespikeHaPe( wname, tstamp, interval, aligned [, multiplie
 	multiplier = ParamIsDefault(multiplier) ? 3.6 : multiplier
 	increment = ParamIsDefault(increment) ? 0.3 : increment
 	passes = ParamIsDefault(passes) ? 3 : passes
+	duration = ParamIsDefault(duration) ? 0.3 : duration
 	
 	variable oi, lo, hi, noi = DimSize(bp, 0)
 	Make/FREE/N=(noi,passes,2) results = 0
@@ -1546,9 +1549,9 @@ Function/WAVE IntervalDespikeHaPe( wname, tstamp, interval, aligned [, multiplie
 		If ( HasNans(wname, p1=lo, p2=hi) )
 			Duplicate/FREE/R=[lo,hi] wname, tmpw
 			Duplicate/FREE/R=[lo,hi] tstamp, tmptstamp
-			wave that = DespikeHaPe( tmpw, tmptstamp, multiplier=multiplier, increment=increment, passes=passes)
+			wave that = DespikeHaPe( tmpw, tmptstamp, multiplier=multiplier, increment=increment, passes=passes, duration=duration)
 		else
-			wave that = DespikeHaPe(wname, tstamp, multiplier=multiplier, increment=increment, passes=passes, p1=lo, p2=hi)
+			wave that = DespikeHaPe(wname, tstamp, multiplier=multiplier, increment=increment, passes=passes, duration=duration, p1=lo, p2=hi)
 		endif
 		results[oi][0, passes-1][%spikes] = that[q][%spikes]
 		results[oi][0, passes-1][%points] = that[q][%points]
