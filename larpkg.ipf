@@ -227,16 +227,25 @@ End
 // Returns a string with the bits in <var> written MSB->LSB as 4bit blocks
 // arbitrarily limited to 32 bits. change variable <upperBound> if desired
 //
+// 2013.05.23 	major API behavior & changes
+//	 				- arg `howMany` has been removed; function automatically determines length of
+//						resulting string now
+//					- new arg `minLen` can be used to get leading zeros if desired
+// 					- new arg `wordsize` determines grouping within string (1110 0100 vs 11 10 01 00)
+//						defaults to four
+//					- arg `maxlen` operates generally as expected; also, it overrides minlen (!) if max<min
 // 2011.09		initial release
-Function/S BitString( var, howMany, [maxLen] )
-	variable var, howMany, maxLen
+Function/S BitString( num [, wordsize, minLen, maxLen] )
+	variable num, wordsize, minLen, maxLen
 	variable i
 	string out = ""
-	var = trunc(var)
-	maxLen = ( ParamIsDefault(maxLen) ? 32 : maxLen ) 
-	for ( i=Limit(howMany, 1, maxLen)-1; i>=0; i-=1 )
-		sprintf out, "%s%d", out, ( (var & (2^i)) != 0 )
-		if ( !Mod( i, 4 ) )
+	num = trunc(num)
+	wordsize = ( ParamIsDefault(wordsize) ? 4 : wordsize )
+	minLen = Max((ParamIsDefault(minLen) ? 0 : minLen), ceil(log(num)/log(2)))
+	maxLen = ( ParamIsDefault(maxLen) ? minLen : maxLen )
+	for ( i=Limit(minLen, 1, maxLen)-1; i>=0; i-=1 )
+		sprintf out, "%s%d", out, ( (num & (2^i)) != 0 )
+		if ( !Mod( i, wordsize ) )
 			out += " "
 		endif
 	endfor
