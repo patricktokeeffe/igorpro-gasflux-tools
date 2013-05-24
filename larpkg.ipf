@@ -4957,7 +4957,7 @@ End
 
 Menu "Analysis"
 	Submenu "More tools"
-		"\\M0::Simple distance from lat/long pair", /Q, PromptedLatLongDistance()
+		"\\M0::Simple distance from lat/long pair", /Q, print "Distance =", PromptedLatLongDistance()
 	End
 End
 
