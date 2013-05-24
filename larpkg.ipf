@@ -4944,8 +4944,8 @@ Menu "Load Waves"
 		help = {"Loads data from Campbell Scientific long-header (TOA5) file(s) using extended file selection dialog"}
 //	"\\M0::Load CampbellSci TOACI1 (short header)...", /Q, PromptedLoadCSI()
 //		help = {"Loads data from Campbell Scientific short-header (TOACI1) file(s)"}
-	"\\M0::Load Los Gatos DLT-100...", /Q, LoadLGR_Panel()
-		help = {"Launch dialog to load Los Gatos Research Fast N2O Analyzer file(s)"}
+	"\\M0::Load Los Gatos analyzer file...", /Q, LoadLGR_Panel()
+		help = {"Launch dialog to load Los Gatos Research CRDS analyzer file(s)"}
 //	"\\M0::Load Picarro G1103...", /Q, beep
 //		help = {"Loads data from Picarro Fast-Ammonia Analyzer file(s)"}
 //	"\\M0::Load Picarro G2301...",  /Q, // use LoadPicarro() manually
