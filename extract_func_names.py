@@ -30,7 +30,9 @@ if __name__ == "__main__":
         for line in ffile:
             if (line.startswith('Function') or line.startswith('ThreadSafe')):
                 num_found += 1
-                results.write(line)
+                line = line.replace('Function/DF ','').replace('Function/C ','')
+                line = line.replace('Function/S ','').replace('Function/WAVE ','')
+                results.write(line.replace('Function ','').replace('ThreadSafe ',''))
         print "found %u functions" % num_found
     raw_input('Press any key to continue...')
 
