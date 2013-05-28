@@ -743,9 +743,13 @@ End
 
 // creates boolean waves denoting presence or absence of diagnostics flags
 //
+// 2013.05.28 	**API CHANGES** 
+//				- made arg `option` optional
+// 				- no longer creates wave by default -- user's responsibility to save the results now
+// 					using Duplicate or MoveWave
 // 2011.11.16 	renamed from LI7500diagnostics()
 // 2011.10.31		initial release
-Function/WAVE DiagnoseLI7500( diagWord, option )
+Function/WAVE DiagnoseLI7500( diagWord [, option] )
 	wave diagWord		// diagnostic word from LI-7500
 	variable option		// set bit true to make additional waves (31=all)
 						//	-	-		total of boolean flags		UINT8		W_li7500_flags
@@ -756,21 +760,22 @@ Function/WAVE DiagnoseLI7500( diagWord, option )
 						//	4 	(16) 	AGC value				SP 			W_li7500_AGC
 						//	...			[all other bits reserved]
 	variable i, val, n = numpnts(diagWord)
+	option = (ParamIsDefault(option) ? 0 : option)
 	Make/B/U/FREE/N=(n) W_li7500_flags, W_li7500_chopper, W_li7500_detector, W_li7500_pll, W_li7500_sync
 	Make/FREE/N=(n) W_li7500_AGC
 	for (i=0; i<numpnts(diagWord); i+=1)
-		val = (diagWord[i] %^ 0xF0 )		// swap bits 4-7: 1111 0000
+		val = (diagWord[i] %^ 0xF0 )		// swap bits 4-7: 1111 0000 so "OK" is now 0 and "flag" is now 1
 		if ( numtype(val) )
 			continue
 		endif
-		W_li7500_chopper[i] 	= TestBit(val, 7) 		// chopper not OK
-		W_li7500_detector[i] 	= TestBit(val, 6)		// detector not OK
+		W_li7500_chopper[i] 	= TestBit(val, 7) 		// chopper
+		W_li7500_detector[i] 	= TestBit(val, 6)		// detector 
 		W_li7500_pll[i] 		= TestBit(val, 5) 		// phase lock loop not OK
 		W_li7500_sync[i] 	= TestBit(val, 4)		// sync not OK
 		W_li7500_flags[i] = W_li7500_chopper[i]+W_li7500_detector[i]+W_li7500_pll[i]+W_li7500_sync[i]
 		W_li7500_AGC[i] 	= ( val & 0x0F ) * 6.25 
 	endfor
-	Duplicate/B/U/O W_li7500_flags, :W_li7500_flags
+	//Duplicate/B/U/O W_li7500_flags, :W_li7500_flags
 	If ( TestBit(option, 0) )
 		Duplicate/B/U/O W_li7500_chopper, :W_li7500_chopper
 	endif
