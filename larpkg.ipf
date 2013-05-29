@@ -687,7 +687,8 @@ End
 
 // creates boolean waves denoting presence or absence of diagnostics flags
 //
-// 2013.05.23 	made arg `option` optional
+// 2013.05.28 	*API change* no longer creates wave by default; user has responsibliity to save results
+// 2013.05.23 	*API change* made arg `option` optional
 // 2011.11.16 	renamed from CSAT3diagnostics()
 // 2011.10.31		reduced If(...) structure to boolean additions under default switch statment
 // 2011.09		initial release
@@ -723,7 +724,7 @@ Function/WAVE DiagnoseCSAT3( diagWord [, option] )
 				W_csat3_flags[i] = W_csat3_del_T[i]+W_csat3_sig_lck[i]+W_csat3_amp_h[i]+W_csat3_amp_l[i]
 		endswitch
 	endfor
-	Duplicate/B/U/O W_csat3_flags, :W_csat3_flags
+	//Duplicate/B/U/O W_csat3_flags, :W_csat3_flags
 	If ( TestBit(option, 0) )
 		Duplicate/B/U/O W_csat3_del_T, :W_csat3_del_T
 	endif
