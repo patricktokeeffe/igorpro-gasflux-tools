@@ -3247,6 +3247,9 @@ End
 // returns dimensionless molar mixing ratio of constituent C == ratio of moles of C to moles of dry air
 // use optional parameter <inMass> to get a mass mixing ratio
 //
+// when using the virtual temp (or the sonic temp. as an approximation thereof) then h2o does not need
+// to be specified--just provide zero
+//
 //	https://secure.wikimedia.org/wikipedia/en/wiki/Mixing_ratio
 // 	http://amsglossary.allenpress.com/glossary/search?id=mixing-ratio1
 //
@@ -3270,9 +3273,9 @@ Function MixingRatio( C_, T_, P_, h2o [, inMass] )
 	variable h2o 			// H2O molar density			mol / m^3 	OR 		g / m^3
 	variable inMass		// nonzero to use mass units
 	If ( inMass )
-		return C_ / ( P_/(kR_dryair*(T_+273.15) ) - h2o )
+		return C_ / ( DensityOfAir(T_, P_) - h2o )
 	else
-		return C_ / ( P_/(kRu*(T_+273.15) ) - h2o )
+		return C_ / ( DensityOfAir(T_, P_, inMoles=1) - h2o )
 	endif
 End
 
