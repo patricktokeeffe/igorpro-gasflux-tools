@@ -227,6 +227,7 @@ End
 // Returns a string with the bits in <var> written MSB->LSB as 4bit blocks
 // arbitrarily limited to 32 bits. change variable <upperBound> if desired
 //
+// 2013.05.28 	FIX error causing leading 1 to be truncated for certain values
 // 2013.05.23 	major API behavior & changes
 //	 				- arg `howMany` has been removed; function automatically determines length of
 //						resulting string now
@@ -241,7 +242,19 @@ Function/S BitString( num [, wordsize, minLen, maxLen] )
 	string out = ""
 	num = trunc(num)
 	wordsize = ( ParamIsDefault(wordsize) ? 4 : wordsize )
-	minLen = Max((ParamIsDefault(minLen) ? 0 : minLen), ceil(log(num)/log(2)))
+	minLen = Max((ParamIsDefault(minLen) ? 0 : minLen), ceil(log(num+1)/log(2)))
+	// shift of num ---> +1 is necessary so binary values with a single leading zero (2 = 10, 4=100, 8=1000, ...)
+	// are not truncated by the minLen calculation:
+	//		1000 = 8 = 2^3 
+	//		1001 = 9 = 2^3.16
+	//		1111 = 15 = 2^3.9	<-- round exponent up (ceiling) to get # of digits in bit string
+	//		10000 = 16 = 2^4
+	// for special case of leading one in binary, the exponent calculated this way is incorrect. if, instead, the 
+	// _following_ integer is used, then ceiling rounding is dependable & legitimate. Observe:
+	//		1000 = 8 ----> 9 = 2^3.16 ----> 4 
+	//		1001 = 9 ----> 10 = 2^3.32 ----> 4 
+	//		1111 = 15 ----> 16 = 2^4 ----> 4
+	//		10000 = 16 ----> 17 = 2^4.08 ----> 5 
 	maxLen = ( ParamIsDefault(maxLen) ? minLen : maxLen )
 	for ( i=Limit(minLen, 1, maxLen)-1; i>=0; i-=1 )
 		sprintf out, "%s%d", out, ( (num & (2^i)) != 0 )
