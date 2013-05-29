@@ -1891,6 +1891,7 @@ end
 //
 // returns wave with results / time set in X scale
 //
+// 2013.05.29 	modify warning about different wave lengths to include input wave names
 // 2011.11.22 	added SameNumRows() check; changed bp check from ParamIsDefault to WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>2nd parameter
 // 2011.10.11		removes NANs only if necessary
@@ -1904,7 +1905,9 @@ Function/WAVE IntervalMean( wname, tstamp, interval, aligned, [bp] )
 	wave bp				// optional 2D wave with starting/stopping points; see IntervalBoundaries
 	
 	If ( !SameNumRows( wname, tstamp ) )
-		print "IntervalMean: timestamp and value waves had different number of rows - aborting"
+		string a_ = NameOfWave(tstamp)
+		string b_ = NameOfWave(wname)
+		printf "IntervalMean: timestamp (%s) and value (%s) waves had different number of rows - aborting\r", a_, b_
 		return NAN
 	elseif ( !WaveExists(bp) )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
