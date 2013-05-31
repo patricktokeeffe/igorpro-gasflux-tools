@@ -1695,6 +1695,7 @@ End
 //
 // returns wave with sensible heat calculated for each specified subintervals using eddy covariance
 //
+// 2013.05.29 	FIX warning about different input wave lengths & include input wave names in feedback
 // 2011.11.22 	changed bp check from ParamIsDefault to !WaveExists; added /D flag to tstamp
 // 2011.11.14 	written
 Function/WAVE IntervalECSensibleHeat( T_, w_, P_, Q_, tstamp, interval, aligned [, bp ] )
@@ -1708,7 +1709,12 @@ Function/WAVE IntervalECSensibleHeat( T_, w_, P_, Q_, tstamp, interval, aligned 
 	wave bp				// optional interval boundary points wave
 	
 	If ( !SameNumRows(T_, w_) || !SameNumRows(w_, tstamp) )
-		print "IntervalECLatentHeat: input waves had different lengths - aborted"
+		string nT, nw, nP, nQ
+		nT = NameOfWave(T_)
+		nw = NameOfWave(w_)
+		nP = NameOfWave(P_)
+		nQ = NameOfWave(Q_)
+		printf "IntervalECSensibleHeat: input waves (%s, %s, %s, %s) had different lengths - aborted\r", nT, nw, nP, nQ
 		return NAN
 	elseif ( !WaveExists(bp) )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
