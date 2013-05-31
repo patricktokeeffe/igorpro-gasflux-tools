@@ -1638,6 +1638,7 @@ End
 //
 // returns wave with latent heat calculated for each subinterval using eddy covariance
 //
+// 2013.05.31 	FIX: added check that optional argument T_ is also same length as h2o, w_
 // 2011.11.22 	changed bp check from ParamIsDefault to !WaveExists; added /D to tstamp param
 // 2011.11.14 	written
 Function/WAVE IntervalECLatentHeat( h2o, w_, tstamp, interval, aligned [, T_, bp ] )
@@ -1650,7 +1651,7 @@ Function/WAVE IntervalECLatentHeat( h2o, w_, tstamp, interval, aligned [, T_, bp
 		// temp determines latent heat of vaporization as f(meanT each period); uses 2.5e3 J/g otherwise
 	wave bp				// optional interval boundary points wave
 	
-	If ( !SameNumRows(h2o, w_) || !SameNumRows(w_, tstamp) )
+	If ( !SameNumRows(h2o, w_) || !SameNumRows(w_, tstamp) || (WaveExists(T_) && !SameNumRows(w_, T_)))
 		print "IntervalECLatentHeat: input waves had different lengths - aborted"
 		return NAN
 	elseif ( !WaveExists(bp) )
