@@ -2736,12 +2736,15 @@ End
 //
 // 	Lv = 1.91846e3 * ( T / (T - 33.91) )^2 	where 	[Lv] = J / g
 //												[T] = Kelvin
+// 	or in C, (T - 33.91) = (T + 273.15 - 33.91) = (T + 239.24)
+//
+// 2013.05.31 	FIX regression caused by conversion to Celcius
 // 2011.11.11 	converted to Celcius
 // 2011.11.09 	written
 Function LatentHeatVapH2O( T_ )
 	variable T_ 		// ambient temp. 				Celcius
 	
-	return 1.91846e3*( (T_+273.15)/(T_+239.24) )^2 - 273.15
+	return 1.91846e3*( (T_+273.15) / (T_+239.24) )^2 
 end
 
 
