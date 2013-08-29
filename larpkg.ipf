@@ -5016,10 +5016,10 @@ Menu "GraphMarquee"
 		"Both", SetAxis/A=2/Z left; SetAxis/A=2/Z right
 	End
 	Submenu "Copy axis ranges"
-		"from left to right", GetAxis/Q left; SetAxis/Z right V_min, V_max
-		"from right to left", GetAxis/Q right; SetAxis/Z left V_min, V_max
-		"from bottom to top", GetAxis/Q bottom; SetAxis/Z top V_min, V_max
-		"from top to bottom", GetAxis/Q top; SetAxis/Z bottom V_min, V_max
+		"from left to right", GetAxis/Q left; SetAxis/Z right V_min, V_max; KillVariables V_flag, V_min, V_max 
+		"from right to left", GetAxis/Q right; SetAxis/Z left V_min, V_max; KillVariables V_flag, V_min, V_max 
+		"from bottom to top", GetAxis/Q bottom; SetAxis/Z top V_min, V_max; KillVariables V_flag, V_min, V_max 
+		"from top to bottom", GetAxis/Q top; SetAxis/Z bottom V_min, V_max; KillVariables V_flag, V_min, V_max 
 	End
 End
 
@@ -5037,10 +5037,10 @@ Menu "TracePopup"
 		"Both", SetAxis/A=2/Z left; SetAxis/A=2/Z right
 	End
 	Submenu "Copy axis ranges"
-		"from left to right", GetAxis/Q left; SetAxis/Z right V_min, V_max
-		"from right to left", GetAxis/Q right; SetAxis/Z left V_min, V_max
-		"from bottom to top", GetAxis/Q bottom; SetAxis/Z top V_min, V_max
-		"from top to bottom", GetAxis/Q top; SetAxis/Z bottom V_min, V_max
+		"from left to right", GetAxis/Q left; SetAxis/Z right V_min, V_max; KillVariables V_flag, V_min, V_max 
+		"from right to left", GetAxis/Q right; SetAxis/Z left V_min, V_max; KillVariables V_flag, V_min, V_max 
+		"from bottom to top", GetAxis/Q bottom; SetAxis/Z top V_min, V_max; KillVariables V_flag, V_min, V_max 
+		"from top to bottom", GetAxis/Q top; SetAxis/Z bottom V_min, V_max; KillVariables V_flag, V_min, V_max 
 	End
 End
 
