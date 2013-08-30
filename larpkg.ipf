@@ -4484,6 +4484,8 @@ End
 
 // returns virtual temp == temp. at which a moist air parcel would occupy the same volume/pressure as a dry air volume
 //
+// the temperature returned by a sonic anemometer very closely approximates the virtual temp
+//
 // 	http://amsglossary.allenpress.com/glossary/search?id=virtual-temperature1
 //				Tv = T*(1 + R/µ) / (1 + R)			T = ambient absolute temperature	Kelvin
 //												R = water vapor mixing ratio		dimensionless
@@ -4510,6 +4512,8 @@ End
 
 
 // returns virtual temp == temp. at which a moist air parcel would occupy the same volume/pressure as a dry air volume
+//
+// the temperature returned by a sonic anemometer very closely approximates the virtual temp
 //
 // 	Atmospheric Science An Introductory Survey by John Wallace and Peter Hobbs. Academic Press, 1977. ISBN 0-12-732950-1
 //		2.17 	Tv = T / [ 1 - (e/P)(1 - µ) ]			T = ambient absolute temperature	Kelvin
