@@ -44,7 +44,15 @@ Constant kR_h2o = 4.61495e-3			// (mb m^3) / (g K) 		specific gas constant for w
 
 
 // specific heats
-Constant kCp_dryair = 1.0057e-2 		// (mb m^3) / (g K)		specific heat capacity at constant pressure for dry air
+Constant kCp_dryair = 0.010057 		// (mb m^3) / (g K)		specific heat capacity at constant pressure for dry air
+	// for dry air @ 273 K, Cp = 1005.7 ± 2.5 J/(kg K) and Cv = 719 ± 2.5 J/(kg K)
+	// both Cp & Cv are constant with temperature for an ideal gas
+	//
+	// 	http://glossary.ametsoc.org/wiki/Specific_heat, citing:
+	// 	Dutton, J. A. 1995. Dynamics of Atmospheric Motion. Dover Press, . 41–45, 406–410. 
+	// 	Sommerfeld, A. 1964. Thermodynamics and Statistical Mechanics. Academic Press, . p. 45. 
+	// 
+	// 	also: 1.0 J / (K * kg) = 1e-5 mbar * m^3 / (g * K)
 //Constant kCpv = 1875	// ± 25 J / (kg K)		specific heat capacity at constant pressure for water vapor ????
 
 
