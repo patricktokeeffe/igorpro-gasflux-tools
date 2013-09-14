@@ -38,13 +38,13 @@ Constant kMW_h2o = 18.01528 		// g / mol			water
 
 
 // gas constants
-Constant kRu = 8.3144621e-2 			// (mb m^3) / (mol K)		universal gas constant
-Constant kR_dryair = 2.87057e-3		// (mb m^3) / (g K)		specific gas constant for dry air
-Constant kR_h2o = 4.61495e-3			// (mb m^3) / (g K) 		specific gas constant for water vapor
+Constant kRu = 8.3144621e-3 			// (kPa m^3) / (mol K)		universal gas constant
+Constant kR_dryair = 2.87057e-4 		// (kPa m^3) / (g K)	 	specific gas constant for dry air
+Constant kR_h2o = 4.61495e-4	 		// (kPa m^3) / (g K) 		specific gas constant for water vapor
 
 
 // specific heats
-Constant kCp_dryair = 0.010057 		// (mb m^3) / (g K)		specific heat capacity at constant pressure for dry air
+Constant kCp_dryair = 0.0010057 		// (kPa m^3) / (g K)		specific heat capacity at constant pressure for dry air
 	// for dry air @ 273 K, Cp = 1005.7 ± 2.5 J/(kg K) and Cv = 719 ± 2.5 J/(kg K)
 	// both Cp & Cv are constant with temperature for an ideal gas
 	//
@@ -52,7 +52,7 @@ Constant kCp_dryair = 0.010057 		// (mb m^3) / (g K)		specific heat capacity at 
 	// 	Dutton, J. A. 1995. Dynamics of Atmospheric Motion. Dover Press, . 41–45, 406–410. 
 	// 	Sommerfeld, A. 1964. Thermodynamics and Statistical Mechanics. Academic Press, . p. 45. 
 	// 
-	// 	also: 1.0 J / (K * kg) = 1e-5 mbar * m^3 / (g * K)
+	// 	also: 1.0 J / (K * kg) = 1e-6 kPa * m^3 / (g * K)
 //Constant kCpv = 1875	// ± 25 J / (kg K)		specific heat capacity at constant pressure for water vapor ????
 
 
@@ -525,17 +525,18 @@ end
 
 // returns density of air in g/m^3 or mol/m^3 using ideal gas law
 //
-//	PV=nRT >> (n/V) = P/(RT)		(n/V) = air density		mol / m^3		OR 	g / m^3
-//								P = barometric presssure	mbar
-//								R = gas constant			(mb m^3)/(mol K)	OR	(mb m^3)/(g K)
+//	PV=nRT >> (n/V) = P/(RT)		(n/V) = air density		mol / m^3			OR 	g / m^3
+//								P = barometric presssure	kPa
+//								R = gas constant			(kPa m^3)/(mol K)	OR	(kPa m^3)/(g K)
 //								T = temp*				Celcius
 //							*use ambient temp for dry air density, virtual temp for moist air density
 //
+// 2013.09.13 	changed pressure units: mbar -> kPa
 // 2011.11.15		standarized input units
 // 2011.11.09 	written
 Function DensityOfAir( T_, P_ [, inMoles] )
 	variable T_ 			// ambient or virtual temp. 			Celcius
-	variable P_			// barometric press. 				mbar = hPa
+	variable P_			// barometric press. 				kPa
 	variable inMoles		// nonzero to return molar density
 	If ( inMoles )
 		return P_ / (kRu * (T_+273.15))
@@ -926,13 +927,14 @@ End
 //
 // weak source: Eqn 11.20 Arya, S. Pal. Introduction to Micrometerology. 2nd Ed. 2001. Academic Press.
 //
+// 2013.09.13 	change pressure units: mbar -> kPa; verified units still correct
 // 2013.05.20 	fix numpnts check
 // 2012.06.18 	*bug* fixed units scaling which previously resulted in values 100X too small
 // 2011.11.11 	written
 Function ECSensibleHeat( T_, w_ , P_, Q_, [p1, p2] )
 	wave T_	 			// ambient temp.					Celcius
 	wave w_ 			// vertical wind					m/s
-	wave P_ 			// ambient press.					mbar
+	wave P_ 			// ambient press.					kPa
 	wave Q_ 			// specific humidity 				dimensionless, 0-1
 	variable p1, p2		// optional point boundaries, inclusive
 	
@@ -946,8 +948,9 @@ Function ECSensibleHeat( T_, w_ , P_, Q_, [p1, p2] )
 	variable out, mt, mq, mp
 	mt = mean(T_, pnt2x(T_,p1), pnt2x(T_,p2) )
 	mq = mean(Q_, pnt2x(Q_,p1),pnt2x(Q_,p2) )
-	mp = mean(P_, pnt2x(P_,p1),pnt2x(P_,p2) )
-	out = 100 * kCp_dryair * (1+0.84*mq) * DensityOfAir( VirtualTemp( mt, mq ), mp ) * Cov( T_, w_, p1=p1, p2=p2 ) 
+	mp = mean(P_, pnt2x(P_,p1),pnt2x(P_,p2) ) 
+	// W/m^2 = [1000 Pa/kPa] * [(kPa*m^3) / (g*K)] * [g/g] * [g/m^3] * [(C m)/s] 	given W*s = Pa*m^3 and K=C
+	out = 1000 * kCp_dryair * (1+0.84*mq) * DensityOfAir( VirtualTemp( mt, mq ), mp ) * Cov( T_, w_, p1=p1, p2=p2 ) 
 	return out
 End
 
@@ -3377,15 +3380,16 @@ End
 // returns dimensionless mole fraction of constituent C == ratio of moles of C to total moles in system
 // 
 //	M == (C, mol/m^3) / (ambient air, mol/m^3) 			C = constituent molar density		mol / m^3
-//		= C / (n/V = P/RT)air							R = univ. gas constant 			(mb m^3)/(mol K)
-//		= C * (RT/P)air 								P = barometric pressure			mbar
+//		= C / (n/V = P/RT)air							R = univ. gas constant 			(kPa m^3)/(mol K)
+//		= C * (RT/P)air 								P = barometric pressure			kPa
 //													T = ambient temp.				Celcius
 //
+// 2013.09.13 	changed pressure units: mbar -> kPa
 // 2011.11.08 	written
 Function MoleFraction( C_, T_, P_ )
 	variable C_			// trace gas molar density 		mol/m^3 = (mass/molecular weight) / m^3
 	variable T_			// ambient abs. temp. 			Kelvin
-	variable P_ 			// barometric press. 			mbar = hPa	
+	variable P_ 			// barometric press. 			kPa	
 	return C_ * kRu * (T_+273.15) / P_
 End
 
@@ -3499,7 +3503,7 @@ End
 
 
 // returns potential temperature, the temp. an air parcel would have if it were expanded or
-// compressed adiabatically from its existing T/P to a standard pressure, P0 = 1000mb
+// compressed adiabatically from its existing T/P to a standard pressure, P0 = 100 kPa
 //
 // 	Arya, S Pal. Introduction to Micrometeorology. 2nd Ed. 2001. Academic Press.
 //		5.7		Tp = T*(1000/P)^k				T,P = ambient temp, press			Kelvin, mbar
@@ -3508,17 +3512,18 @@ End
 // 	Atmospheric Science An Introductory Survey by John Wallace and Peter Hobbs.
 //	Academic Press, 1977. ISBN 0-12-732950-1
 //		2.57		Tp = T*(P0/P)^(R/Cp) 			T = ambient temp					Kelvin
-//											P0,P = reference,ambient press 	mbar
+//											P0,P = reference,ambient press 	<same units>
 //											R/Cp ~= 0.286
 //
+// 2013.09.13 	changed pressure: mbar -> kPa
 // 2011.11.15		added reference pressure as optional parameter
 // 2011.11.04 	written
 Function PotentialTemp( T_, P_ [, P0 ] )
 	variable T_			// ambient abs. temp.				Kelvin
-	variable P_			// ambient barometric pressure		mbar
-	variable P0			// optional reference pressure		mbar	assumed 1000mb
+	variable P_			// ambient barometric pressure		kPa
+	variable P0			// optional reference pressure		kPa		assumed 1000mb = 100 kPa
 
-	P0 = (ParamIsDefault(P0) || numtype(P0)) ? 1000 : P0
+	P0 = (ParamIsDefault(P0) || numtype(P0)) ? 100 : P0
 	return T_ * (P0 / P_)^(kR_dryair / kCp_dryair)
 End
 
