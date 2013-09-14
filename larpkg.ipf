@@ -925,6 +925,9 @@ End
 
 // returns sensible heat flux in Watts/meter^2 using eddy covariance
 //
+// if water vapor mixing ratio is unknown, a wave of 0s can be passed; use virtual (sonic) temp in place of
+// ambient temp to minimize effects; shouldn't modify results by more than ~1%
+//
 // weak source: Eqn 11.20 Arya, S. Pal. Introduction to Micrometerology. 2nd Ed. 2001. Academic Press.
 //
 // 2013.09.13 	change pressure units: mbar -> kPa; verified units still correct
