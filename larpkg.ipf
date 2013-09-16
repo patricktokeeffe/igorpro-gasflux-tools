@@ -1155,6 +1155,7 @@ End
 // Excel can also be put in 1904-mode where ddddd = # of days since 1904/01/01 (generally for Mac compatibility)
 // Conveniently, Igor was (probably) developed on a Mac and uses # of secs since 1904/01/01 so then it's just scaling.
 //
+// 2013.09.16 	clarified calculation in comment 
 // 2011.11.07 	changed name from "serial2secs"; improved description
 // 2011.09		initial release
 ThreadSafe Function excel2secs( serialdate, [use1904mode] )
@@ -1162,7 +1163,7 @@ ThreadSafe Function excel2secs( serialdate, [use1904mode] )
 	If ( use1904mode )
 		return serialdate*86400
 	else
-		return (serialdate - 1462)*86400 	// 1904/01/01 - 1900/01/01 = 1461
+		return (serialdate - 1462)*86400 	// 1904/01/01 - 1900/01/01 - <nonexistant leap day> = -1462
 	endif
 End
 
