@@ -1872,9 +1872,17 @@ Function/WAVE IntervalFrictionVelocity( u_, v_, w_, tstamp, interval, aligned, [
 end
 
 
-// returns ratio (0-1) of # points missing in each interval
-// detects NANs, short intervals and deviations in sampling rate
+// assesses group of waves (list of wave refs) and determines maximum fraction of missing rows 
+// or rows containing NAN across the group; returns a ratio (0-1) representing missing fraction
+// 
+// checks all intervals and assumes maximum number of rows found represents possible # of rows. 
+// therefore if _all_ intervals are missing rows (gaps, not NANs), results will not be entirely accurate
 //
+// NAN values do count towards 'missing rows' fraction 
+// 
+// since value returned is maximum fraction missing, results may not be representative of all waves in group
+//
+// 2013.09.16 	clarified source code documentation
 // 2011.11.22 	added SameNumRowsW() check; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>2nd parameter
 // 2011.10.27		revised arguments to accept wave of references instead of string list
