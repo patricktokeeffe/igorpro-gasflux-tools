@@ -2028,7 +2028,7 @@ End
 // 2011.10.06		made insensitive to NANs in <wname>
 // 2011.09		initial release
 Function/WAVE IntervalSdev( wname, tstamp, interval, aligned, [bp] )
-	wave wname			// wave of refs to target waves
+	wave wname			// wave of values
 	wave/D tstamp		// double precision timestamp wave
 	variable interval		// size of subinterval in seconds
 	variable aligned		// nonzero to start/stop on whole multiples of interval
