@@ -1977,6 +1977,48 @@ Function/WAVE IntervalMean( wname, tstamp, interval, aligned, [bp] )
 	return wout
 End
 
+
+// determines number of rows (dimension 0) in each interval; useful for assessing how many rows
+// are present/missing; note a NAN value is counted as present (!)
+// 
+// function is intended for use with time series data and thus counting any other dimension doesn't
+// make sense. since numpnts is more commonly used (though perhaps shouldn't be) and no other
+// dimension counting makes sense, the name 'numpnts' was chosen. Internally, DimSize is used.
+// 
+// returns wave with results / time set in X scale
+//
+// 2013.09.16		written
+Function/WAVE IntervalNumpnts( wname, tstamp, interval, aligned, [bp] )
+	wave wname			// wave to count points of
+	wave/D tstamp		// double precision timestamp wave
+	variable interval		// size of subinterval in seconds
+	variable aligned		// nonzero to start/stop on whole multiples of interval
+	wave bp				// optional 2D wave with starting/stopping points; see IntervalBoundaries
+	
+	If ( !SameNumRows( wname, tstamp ) )
+		print "IntervalTotal: timestamp and value wave had different number of rows - aborting"
+		return NAN
+	elseif ( !WaveExists(bp) )
+		wave bp = IntervalBoundaries( tstamp, interval, aligned )
+	endif
+	Make/FREE/N=(DimSize(bp,0)) wout
+	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	
+	variable oi, lo, hi
+	for (oi=0; oi<DimSize(bp, 0); oi+=1)
+		lo = bp[oi][%lo]
+		hi = bp[oi][%hi]
+		If ( numtype(lo) || numtype(hi) )
+			wout[oi] = NAN
+			continue
+		endif
+		Duplicate/FREE/R=[lo,hi] wname, subw
+		wout[oi] = DimSize(subw, 0)
+	endfor
+	return wout
+End
+
+
 // returns the monin-obukhov length calculated for each interval
 //
 // 	uses ObukhovLengthTS() internally
