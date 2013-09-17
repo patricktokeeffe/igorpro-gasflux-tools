@@ -2071,6 +2071,47 @@ Function/WAVE IntervalSdev( wname, tstamp, interval, aligned, [bp] )
 End
 
 
+// sums up values in each interval; ignores NANs in wave
+// 
+// returns wave with results / time set in X scale
+//
+// 2013.09.16		written
+Function/WAVE IntervalSum( wname, tstamp, interval, aligned, [bp] )
+	wave wname			// wave of values to total
+	wave/D tstamp		// double precision timestamp wave
+	variable interval		// size of subinterval in seconds
+	variable aligned		// nonzero to start/stop on whole multiples of interval
+	wave bp				// optional 2D wave with starting/stopping points; see IntervalBoundaries
+	
+	If ( !SameNumRows( wname, tstamp ) )
+		print "IntervalTotal: timestamp and value wave had different number of rows - aborting"
+		return NAN
+	elseif ( !WaveExists(bp) )
+		wave bp = IntervalBoundaries( tstamp, interval, aligned )
+	endif
+	Make/FREE/N=(DimSize(bp,0)) wout
+	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	
+	variable oi, lo, hi
+	for (oi=0; oi<DimSize(bp, 0); oi+=1)
+		lo = bp[oi][%lo]
+		hi = bp[oi][%hi]
+		If ( numtype(lo) || numtype(hi) )
+			wout[oi] = NAN
+			continue
+		endif
+		If ( HasNans(wname, p1=lo, p2=hi) )
+			Duplicate/FREE/R=[lo,hi] wname, subw
+			RemoveNans(subw)
+			wout[oi] = sum(subw)
+		else
+			wout[oi] = sum(wname, pnt2x(wname,lo), pnt2x(wname,hi))
+		endif
+	endfor
+	return wout
+End
+
+
 // returns ref to free wave with timestamp values derived from subintervals found in <tstamp>
 //
 // 2011.11.22 	changed bp check from ParamIsDefault to !WaveExists
