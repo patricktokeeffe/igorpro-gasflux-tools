@@ -895,10 +895,11 @@ End
 
 
 // TODO
-// 	verify this function
+// 	find official source for default h2o latent heat vaporization
 //
 // returns latent heat flux using eddy covariance
 //
+// 2013.09.18 	confirm units of results are correct
 // 2011.11.11 	written
 Function ECLatentHeat( h2o, w_ [, T_, p1, p2] )
 	wave h2o 			// water vapor molar density 		g / m^3
@@ -913,11 +914,11 @@ Function ECLatentHeat( h2o, w_ [, T_, p1, p2] )
 	endif
 	p1 = Limit(p1, 0, p1)
 	p2 = Limit( (ParamIsDefault(p2) ? DimSize(h2o,0) : p2), p1, DimSize(h2o,0) )
-	variable out = Cov( h2o, w_, p1=p1, p2=p2 )
+	variable out = Cov( h2o, w_, p1=p1, p2=p2 ) // (g/m^3)(m/s) = g / (s*m^2)
 	If ( ParamIsDefault(T_) || !WaveExists(T_) )
-		out *= 2.5e3
+		out *= 2.5e3 		// J/g 
 	else
-		out *= LatentHeatVapH2O(mean(T_,pnt2x(T_,p1),pnt2x(T_,p2)))
+		out *= LatentHeatVapH2O(mean(T_,pnt2x(T_,p1),pnt2x(T_,p2))) // (g/(s*m^2))(J/g) = (W*s)/(s*m^2) = W/m^2 	[J=W*s]
 	endif
 	return out
 End
@@ -1650,17 +1651,15 @@ Function/WAVE IntervalEC_co2( co2, w_, tstamp, interval, aligned [, bp ] )
 End
 
 
-// TODO
-//	review this function for validity
-//
 // returns wave with latent heat calculated for each subinterval using eddy covariance
 //
 // 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
+// 				change h2o units mol/m^3 -> g/m^3 and verify results are correct units
 // 2013.05.31 	FIX: added check that optional argument T_ is also same length as h2o, w_
 // 2011.11.22 	changed bp check from ParamIsDefault to !WaveExists; added /D to tstamp param
 // 2011.11.14 	written
 Function/WAVE IntervalECLatentHeat( h2o, w_, tstamp, interval, aligned [, T_, bp ] )
-	wave h2o 			// water vapor molar density		mol / m^3
+	wave h2o 			// water vapor molar density		g / m^3
 	wave w_ 			// vertical wind component 			m / s
 	wave/D tstamp 		// timestamp						igor date/time
 	variable interval		// averaging period				seconds
