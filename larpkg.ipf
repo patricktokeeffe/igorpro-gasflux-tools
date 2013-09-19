@@ -961,27 +961,6 @@ Function ECSensibleHeat( T_, w_ , P_, Q_, [p1, p2] )
 End
 
 
-// return eddy covariance flux of CO2 from gas density and wind measurements
-// value will be NAN if arguments contain NAN
-//
-// 2013.05.20 	written
-Function EC_co2( co2, w_, [p1, p2] )
-	wave co2 			// density of carbon dioxide			g / m^2 or mol/m^2
-	wave w_				// vertical wind speed 					m / s
-	variable p1, p2 		// optional point boundaries, inclusive
-	
-	If ( !SameNumPnts(co2, w_) )
-		print "EC_co2: input waves are not all the same length - aborting"
-		return NAN
-	endif
-	p1 = Limit(p1, 0, p1)
-	p2 = Limit( (ParamIsDefault(p2) ? DimSize(co2,0)-1 : p2), p1, DimSize(co2,0)-1 ) 
-	
-	return Cov( co2, w_, p1=p1, p2=p2 )
-End
-
-
-
 // TODO
 //	verify results of this function
 //
@@ -1610,23 +1589,26 @@ Function/WAVE IntervalDespikeHaPe( wname, tstamp, interval, aligned [, multiplie
 End	
 
 
-// returns wave with CO2 flux calculated for each subinterval using eddy covariance
+// returns wave with trace gas flux calculated for each subinterval using eddy covariance
 //
 // since this function does a simple covariance, density units just carry through -- this
 // may change (!)
 //
+// 2013.09.19 	eliminate intermediate function EC_co2, use Cov directly instead
+// 				change function name IntervalEC_co2 --> IntervalEC_gas
+//				correct function name in error message
 // 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2013.05.20 	written
-Function/WAVE IntervalEC_co2( co2, w_, tstamp, interval, aligned [, bp ] )
-	wave co2 			// carbon dioxoide density			mg / m^3 	or 	mol / m^3
-	wave w_ 			// vertical wind component 			m / s
-	wave/D tstamp 		// timestamp						igor date/time
-	variable interval		// averaging period				seconds
+Function/WAVE IntervalEC_gas( gas, w_, tstamp, interval, aligned [, bp ] )
+	wave gas 			// trace gas mass or molar density		mg / m^3 	or 	mol / m^3
+	wave w_ 			// vertical wind component 				m / s
+	wave/D tstamp 		// timestamp							igor date/time
+	variable interval		// averaging period					seconds
 	variable aligned 		// nonzero to start/stop on whole intervals
 	wave bp				// optional interval boundary points wave
 	
-	If ( !SameNumRows(co2, w_) || !SameNumRows(w_, tstamp) )
-		print "IntervalECLatentHeat: input waves had different lengths - aborted"
+	If ( !SameNumRows(gas, w_) || !SameNumRows(w_, tstamp) )
+		print "IntervalEC_gas: input waves had different lengths - aborted"
 		return NAN
 	elseif ( !WaveExists(bp) )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
@@ -1642,14 +1624,14 @@ Function/WAVE IntervalEC_co2( co2, w_, tstamp, interval, aligned [, bp ] )
 			wout[oi] = NAN
 			continue
 		endif
-		If (HasNans(co2,p1=lo,p2=hi) || HasNans(w_,p1=lo,p2=hi) )
-			Duplicate/FREE/R=[lo,hi] co2, subco2
+		If (HasNans(gas,p1=lo,p2=hi) || HasNans(w_,p1=lo,p2=hi) )
+			Duplicate/FREE/R=[lo,hi] gas, subgas
 			Duplicate/FREE/R=[lo,hi] w_, subw
-			Make/FREE/WAVE/N=2 nanlist = {subco2, subw}
+			Make/FREE/WAVE/N=2 nanlist = {subgas, subw}
 			RemoveNansW( nanlist )
-			wout[oi] = EC_co2( subco2, subw )
+			wout[oi] = Cov( subgas, subw )
 		else
-			wout[oi] = EC_co2( co2, w_, p1=lo, p2=hi )
+			wout[oi] = Cov( gas, w_, p1=lo, p2=hi )
 		endif
 	endfor
 	return wout
