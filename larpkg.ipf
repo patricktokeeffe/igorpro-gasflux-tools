@@ -1610,10 +1610,13 @@ End
 
 // returns wave with CO2 flux calculated for each subinterval using eddy covariance
 //
+// since this function does a simple covariance, density units just carry through -- this
+// may change (!)
+//
 // 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2013.05.20 	written
 Function/WAVE IntervalEC_co2( co2, w_, tstamp, interval, aligned [, bp ] )
-	wave co2 			// carbon dioxoide mass density	g / m^3
+	wave co2 			// carbon dioxoide density			mg / m^3 	or 	mol / m^3
 	wave w_ 			// vertical wind component 			m / s
 	wave/D tstamp 		// timestamp						igor date/time
 	variable interval		// averaging period				seconds
