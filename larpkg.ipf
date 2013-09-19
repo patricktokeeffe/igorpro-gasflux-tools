@@ -1709,9 +1709,6 @@ Function/WAVE IntervalECLatentHeat( h2o, w_, tstamp, interval, aligned [, T_, bp
 End
 
 
-// TODO
-// 	review function's validity
-//
 // returns wave with sensible heat calculated for each specified subintervals using eddy covariance
 //
 // 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
