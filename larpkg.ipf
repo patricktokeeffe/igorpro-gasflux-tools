@@ -1492,6 +1492,7 @@ End
 //
 // returns wave with results / time set in X scale or NAN if <wx>, <wy> are different length
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st=>3rd parameter
 // 2011.10.10 	made insensitive to NANs
@@ -1510,7 +1511,7 @@ Function/WAVE IntervalCov( wx, wy, tstamp, interval, aligned, [bp] )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -1608,6 +1609,7 @@ End
 
 // returns wave with CO2 flux calculated for each subinterval using eddy covariance
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2013.05.20 	written
 Function/WAVE IntervalEC_co2( co2, w_, tstamp, interval, aligned [, bp ] )
 	wave co2 			// carbon dioxoide mass density	g / m^3
@@ -1624,7 +1626,7 @@ Function/WAVE IntervalEC_co2( co2, w_, tstamp, interval, aligned [, bp ] )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp, 0); oi+=1)
@@ -1653,6 +1655,7 @@ End
 //
 // returns wave with latent heat calculated for each subinterval using eddy covariance
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2013.05.31 	FIX: added check that optional argument T_ is also same length as h2o, w_
 // 2011.11.22 	changed bp check from ParamIsDefault to !WaveExists; added /D to tstamp param
 // 2011.11.14 	written
@@ -1673,7 +1676,7 @@ Function/WAVE IntervalECLatentHeat( h2o, w_, tstamp, interval, aligned [, T_, bp
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp, 0); oi+=1)
@@ -1711,6 +1714,7 @@ End
 //
 // returns wave with sensible heat calculated for each specified subintervals using eddy covariance
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2013.05.29 	FIX warning about different input wave lengths & include input wave names in feedback
 // 2011.11.22 	changed bp check from ParamIsDefault to !WaveExists; added /D flag to tstamp
 // 2011.11.14 	written
@@ -1736,7 +1740,7 @@ Function/WAVE IntervalECSensibleHeat( T_, w_, P_, Q_, tstamp, interval, aligned 
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp, 0); oi+=1)
@@ -1767,6 +1771,7 @@ End
 //
 // returns 2column wave with eddy covariance density corrections for each subinterval following WPL (80)
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	written
 Function/WAVE IntervalEC_WPL80( rhoC, rhoV, rhoD, T_, w_, tstamp, interval, aligned [, bp] )
 	wave rhoC 					// density of constituent C					g / m^3 
@@ -1790,7 +1795,7 @@ Function/WAVE IntervalEC_WPL80( rhoC, rhoV, rhoD, T_, w_, tstamp, interval, alig
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0),2) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	SetDimLabel 1, 0, h2o_term, wout
 	SetDimLabel 1, 1, T_term, wout
 	
@@ -1825,6 +1830,7 @@ End
 
 // returns wave with friction velocity calculated for each subinterval
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2012.06.12 	written
 Function/WAVE IntervalFrictionVelocity( u_, v_, w_, tstamp, interval, aligned, [bp] )
 	wave u_, v_			// horizontal wind components, m/s
@@ -1843,7 +1849,7 @@ Function/WAVE IntervalFrictionVelocity( u_, v_, w_, tstamp, interval, aligned, [
 	endif
 	variable oi, lo, hi, nancnt
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
 		lo = bp[oi][%lo]
@@ -1882,6 +1888,7 @@ end
 // 
 // since value returned is maximum fraction missing, results may not be representative of all waves in group
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2013.09.16 	clarified source code documentation
 // 2011.11.22 	added SameNumRowsW() check; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>2nd parameter
@@ -1906,7 +1913,7 @@ Function/WAVE IntervalMaxPntsGone( wrefs, tstamp, interval, aligned, [bp] )
 	npnts = WaveMax(pointest)
 
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	wout = 1 - ( (bp[p][%hi] - bp[p][%lo] +1) / npnts )
 	
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -1934,6 +1941,7 @@ end
 //
 // returns wave with results / time set in X scale
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2013.05.29 	modify warning about different wave lengths to include input wave names
 // 2011.11.22 	added SameNumRows() check; changed bp check from ParamIsDefault to WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>2nd parameter
@@ -1956,7 +1964,7 @@ Function/WAVE IntervalMean( wname, tstamp, interval, aligned, [bp] )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp, 0); oi+=1)
@@ -1987,6 +1995,7 @@ End
 // 
 // returns wave with results / time set in X scale
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2013.09.16		written
 Function/WAVE IntervalNumpnts( wname, tstamp, interval, aligned, [bp] )
 	wave wname			// wave to count points of
@@ -2002,7 +2011,7 @@ Function/WAVE IntervalNumpnts( wname, tstamp, interval, aligned, [bp] )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp, 0); oi+=1)
@@ -2023,6 +2032,7 @@ End
 //
 // 	uses ObukhovLengthTS() internally
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.21 	written
 Function/WAVE IntervalObukhovLength( u_, v_, w_, Tv, tstamp, interval, aligned [, bp] )
 	wave u_, v_				// horizontal wind components 			m / s
@@ -2041,7 +2051,7 @@ Function/WAVE IntervalObukhovLength( u_, v_, w_, Tv, tstamp, interval, aligned [
 	endif
 	
 	Make/FREE/N=(DimSize(bp,0)) wout = NAN
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -2072,6 +2082,7 @@ End
 // 
 // returns wave with results / time set in X scale
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	added SameNumRows() check and changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.21 	added If...else...endif block to only remove NANs when necessary
 // 2011.11.16 	moved <tstamp> from 1st>>2nd parameter
@@ -2091,7 +2102,7 @@ Function/WAVE IntervalSdev( wname, tstamp, interval, aligned, [bp] )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp, 0); oi+=1)
@@ -2117,6 +2128,7 @@ End
 // 
 // returns wave with results / time set in X scale
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2013.09.16		written
 Function/WAVE IntervalSum( wname, tstamp, interval, aligned, [bp] )
 	wave wname			// wave of values to total
@@ -2132,7 +2144,7 @@ Function/WAVE IntervalSum( wname, tstamp, interval, aligned, [bp] )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp, 0); oi+=1)
@@ -2156,6 +2168,7 @@ End
 
 // returns ref to free wave with timestamp values derived from subintervals found in <tstamp>
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	changed bp check from ParamIsDefault to !WaveExists
 // 2011.10.07		unrecognized <edge> values now default to 0
 // 2011.09		initial release
@@ -2170,7 +2183,7 @@ Function/WAVE IntervalTimestamps( tstamp, interval, aligned, edge, [bp] )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/D/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	SetScale d, 0, 0, "dat", wout
 	
 	wout = leftx(bp) + deltax(bp)*p
@@ -2193,6 +2206,7 @@ End
 //
 // 	see TKE(...)
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.23 	written
 Function/WAVE IntervalTKE( u_, v_, w_, tstamp, interval, aligned, [, bp] )
 	wave u_, v_, w_ 				// orthogonal wind components 			m / s
@@ -2208,7 +2222,7 @@ Function/WAVE IntervalTKE( u_, v_, w_, tstamp, interval, aligned, [, bp] )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -2239,6 +2253,7 @@ End
 // returns 2D wave with 1st,2nd,3rd rotation angles in cols 0,1,2 (%yaw, %pitch, %roll)
 // 	or NAN for errors including bad <type>/<bp> or length of tstamp != length of uvwMatrix
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	added error msg for !SameNumRows and changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>3rd parameter
 // 2011.11.03		added support for planar fit; renamed angles according to rotation axis (yaw, pitch, roll)
@@ -2265,7 +2280,7 @@ Function/WAVE IntervaluvwRotation( uvwMatrix, type, tstamp, interval, aligned, [
 	SetDimLabel 1, 0, yaw, rotAngles
 	SetDimLabel 1, 1, pitch, rotAngles
 	SetDimLabel 1, 2, roll, rotAngles
-	SetScale/P x, leftx(bp), deltax(bp), "dat", rotAngles
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), rotAngles
 	SetScale d, 0, 0, "degrees", rotAngles
 	
 	If ( !type || type==1 )
@@ -2360,6 +2375,7 @@ End
 // returns reference to free wave containing sdev of WD estimated by Mardia formula
 // there is no need for azimuth since only a std dev is returned
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists 
 // 2011.11.16 	moved <tstamp> from 1st>>3rd parameter
 // 2011.10.07		intial release
@@ -2377,7 +2393,7 @@ Function/WAVE IntervalWindDirMardiaSdev( Ux, Uy, tstamp, interval, aligned, [bp]
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -2413,6 +2429,7 @@ End
 //	Duplicate/O/R=[][1] wd_mean, :wd_sdev							// copy second column to new wave
 //	Redimension/N=(-1,1) wd_mean 								// delete second column from first wave
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2012.06.12 	fixed bug where sdev dimension was set to 0 instead of NaN for missing intervals
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists 
 // 2011.11.16 	moved <tstamp> from 1st>>5th parameter
@@ -2435,7 +2452,7 @@ Function/WAVE IntervalWindDirScalarMeanSdev( Ux, Uy, azimuth, flag, tstamp, inte
 	Make/FREE/N=(DimSize(bp,0), 2) wout
 	SetDimLabel 1, 0, WDmean, wout
 	SetDimLabel 1, 1, WDsdev, wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	variable/C result
@@ -2464,6 +2481,7 @@ End
 
 // returns reference to free wave containing unit vector mean wind direction for each interval
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>5th parameter
 // 2011.10.07		initial release
@@ -2483,7 +2501,7 @@ Function/WAVE IntervalWindDirUnitVectorMean( Ux, Uy, azimuth, flag, tstamp, inte
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -2509,6 +2527,9 @@ End
 
 // returns reference to free wave containing resultant mean wind direction for each interval
 //
+// use type=0 for CSAT3, ATI style anemometers
+//
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>5th parameter
 // 2011.10.07		intial release
@@ -2528,7 +2549,7 @@ Function/WAVE IntervalWindDirVectorMean( Ux, Uy, azimuth, type, tstamp, interval
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -2555,6 +2576,7 @@ End
 // returns reference to free wave containing sdev of WD by Yamartino formula for each interval
 // no azimuth is required since this is just a sdev formula
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>3rd parameter
 // 2011.10.07		initial release
@@ -2572,7 +2594,7 @@ Function/WAVE IntervalWindDirYamartinoSdev( Ux, Uy, tstamp, interval, aligned, [
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -2598,6 +2620,7 @@ End
 
 // returns reference to free wave containing scalar mean WS for each interval
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>3rd parameter
 // 2011.10.07		initial release
@@ -2615,7 +2638,7 @@ Function/WAVE IntervalWindSpeedScalarMean( Ux, Uy, tstamp, interval, aligned, [b
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 
 	variable oi, lo, hi	
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -2641,6 +2664,7 @@ End
 
 // returns reference to free wave containing scalar harmonic mean WS for each interval
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>3rd parameter
 // 2011.10.07 	initial release
@@ -2658,7 +2682,7 @@ Function/WAVE IntervalWindSpeedScalarHMean( Ux, Uy, tstamp, interval, aligned, [
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 
 	variable oi, lo, hi	
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -2684,6 +2708,7 @@ End
 
 // returns reference to free wave containing std dev of scalar WS for each interval
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>3rd parameter
 // 2011.10.07		initial release
@@ -2701,7 +2726,7 @@ Function/WAVE IntervalWindSpeedScalarSdev( Ux, Uy, tstamp, interval, aligned, [b
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -2727,6 +2752,7 @@ End
 
 // returns reference to free wave with vector mean WS for each interval
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>3rd parameter
 // 2011.10.07 	function now only removes NANs if some are present (fast, faster)
@@ -2746,7 +2772,7 @@ Function/WAVE IntervalWindSpeedVectorMean( Ux, Uy, tstamp, interval, aligned, [b
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 	
 	variable oi, lo, hi
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
@@ -2772,6 +2798,7 @@ End
 
 // returns reference to free wave with wind speed persistance calculated for each interval 
 //
+// 2013.09.18 	change: derive X-scale units from bp instead of assuming "dat"
 // 2012.06.13 	*bug fix* inserted RemoveNansW(nanlist) statement
 // 2011.11.22 	changed wave length check from points to rows; changed bp check from ParamIsDefault to !WaveExists
 // 2011.11.16 	moved <tstamp> from 1st>>3rd parameter
@@ -2790,7 +2817,7 @@ Function/WAVE IntervalWindSpeedPersist( Ux, Uy, tstamp, interval, aligned, [bp] 
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
 	endif
 	Make/FREE/N=(DimSize(bp,0)) wout
-	SetScale/P x, leftx(bp), deltax(bp), "dat", wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
 
 	variable oi, lo, hi	
 	for (oi=0; oi<DimSize(bp,0); oi+=1)
