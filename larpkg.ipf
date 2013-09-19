@@ -458,6 +458,7 @@ End
 // Returns covariance of wx and wy as Cov(wx,wy) = mean(wx*wy) - mean(wx)*mean(wy)
 // or NAN if any points were NAN or waves not same length
 //
+// 2013.09.19 	simplify point assignment for wxwy 
 // 2011.11.21 	changed numpnts() to DimSize(); added multidimensional check
 // 2011.10.11		added limits to point boundaries
 // 2011.10		added point boundaries
@@ -475,7 +476,8 @@ Function Cov( wx, wy, [p1, p2])
 	p1 = Limit(p1, 0, p1)
 	p2 = Limit( (ParamIsDefault(p2) ? DimSize(wx,0)-1 : p2), p1, DimSize(wx,0)-1 )
 	Duplicate/FREE/R=[p1,p2] wx, wxwy
-	wxwy[0, p2-p1] = wx[ p1+p ] * wy[ p1+p ] 
+//	wxwy[0, p2-p1] = wx[ p1+p ] * wy[ p1+p ] 
+	wxwy = wx[ p1+p ] * wy[ p1+p ]
 	variable foo = (mean(wxwy)-mean(wx,pnt2x(wx,p1),pnt2x(wx,p2))*mean(wy,pnt2x(wy,p1),pnt2x(wy,p2)))
 	return foo
 End
