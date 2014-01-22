@@ -1272,7 +1272,9 @@ End
 
 
 // returns friction velocity
-//	http://amsglossary.allenpress.com/glossary/search?p=1&query=friction+velocity
+// 
+// http://glossary.ametsoc.org/wiki/Friction_velocity
+// https://web.archive.org/web/*/http://amsglossary.allenpress.com/glossary/search?id=friction-velocity1
 //
 // 	u* = [ Cov( u, w )^2 + Cov( v, w )^2 ]^(1/4)
 //
@@ -3392,8 +3394,9 @@ End
 // when using the virtual temp (or the sonic temp. as an approximation thereof) then h2o does not need
 // to be specified--just provide zero
 //
-//	https://secure.wikimedia.org/wikipedia/en/wiki/Mixing_ratio
-// 	http://amsglossary.allenpress.com/glossary/search?id=mixing-ratio1
+// https://secure.wikimedia.org/wikipedia/en/wiki/Mixing_ratio
+// http://glossary.ametsoc.org/wiki/Mixing_ratio
+// https://web.archive.org/web/*/http://amsglossary.allenpress.com/glossary/search?id=mixing-ratio1
 //
 // 	Derivations based on the ideal gas law:	PV = nRT 
 //		Xc = (n/V)C / [ (P/RT)air - (n/V)h2o ]		(n/V)C = constituent molar density	mol / m^3
@@ -3445,7 +3448,7 @@ End
 // returns dimensionless mass mixing ratio of a vapor == ratio of mass of vapor to mass of dry air
 // default vapor is H2O; use optional parameter <MW> to specify molecular weight of a different vapor if desired
 //
-// 	http://amsglossary.allenpress.com/glossary/search?id=mixing-ratio1
+// [see references for MixingRatio()]
 // 		R = (MWv / MWd)*e / (P - e)		e,P = vapor, barometric pressures		same units
 //										MWv / MWd = Rd/Rv 	 				dimensionless
 //
@@ -3553,15 +3556,17 @@ Function/S NewProgressWindow()
 	return myname
 End
 
-// returns the monin-obukhov length (meters) from variables 
+// returns the obukhov length (meters) from variables 
 //
-// 	http://amsglossary.allenpress.com/glossary/search?id=monin-obukhov-similarity-theory1
-//	http://amsglossary.allenpress.com/glossary/search?id=obukhov-length1
+// https://web.archive.org/web/*/http://amsglossary.allenpress.com/glossary/search?id=monin-obukhov-similarity-theory1
+// https://web.archive.org/web/*/http://amsglossary.allenpress.com/glossary/search?id=obukhov-length1
+// http://glossary.ametsoc.org/wiki/Obukhov_length
 // 		L = [ -1 * <Tv> * (u*)^3 ] / [ k * G * Cov(w, Tv) ]		u* = friction velocity			m / s
 //														Tv = virtual temp				Kelvin
 //			<...> denotes averaging						k = von Karman's constant 	dimensionless
 //														G = gravity force				m / s^2
 //														w = vertical wind component 	m / s
+//
 // 	https://secure.wikimedia.org/wikipedia/en/wiki/Monin-Obukhov_Length
 //		provides an identical definition, albiet with the virtual _potential_ temp
 // 
@@ -3576,8 +3581,7 @@ End
 
 // returns the monin-obukhov length (meters) from time series
 //
-// 	http://amsglossary.allenpress.com/glossary/search?id=monin-obukhov-similarity-theory1
-//	http://amsglossary.allenpress.com/glossary/search?id=obukhov-length1
+// [see references for ObukhovLength()]
 // 		L = [ -1 * <Tv> * (u*)^3 ] / [ k * G * Cov(w, Tv) ]		u* = friction velocity			m / s
 //														Tv = virtual temp				Kelvin
 //			<...> denotes averaging						k = von Karman's constant 	dimensionless
@@ -4078,7 +4082,8 @@ end
 
 // returns saturation vapor pressure based on ambient temperature
 // 	
-//	http://amsglossary.allenpress.com/glossary/search?id=clausius-clapeyron-equation1
+//	https://web.archive.org/web/*/http://amsglossary.allenpress.com/glossary/search?id=clausius-clapeyron-equation1
+// 
 //	Bolton, D., 1980: The Computation of Equivalent Potential Temperature. Monthly Weather
 //	Review. Vol 108, 1046-1053. 
 //		Eqn 10: 		es(T) = 6.112*exp( (17.67*T) / (T+243.5) ) 		T = ambient temp, Celcius
@@ -4119,7 +4124,7 @@ End
 
 // returns dimensionless specific humidity, defined as mass of water vapor to total mass of the system
 //
-//	http://amsglossary.allenpress.com/glossary/search?id=specific-humidity1
+//	https://web.archive.org/web/*/http://amsglossary.allenpress.com/glossary/search?id=specific-humidity1
 //		Q 	= Mw / (Mw+Md) 				Mw,Md = mass of water vapor,dry air 	dimensionless
 //			= [Mw / (Mw+Md)]*[Md/Md]
 //			= (Mw/Md) / (Mw/Md + Md/Md)
@@ -4604,7 +4609,8 @@ End
 //
 // the temperature returned by a sonic anemometer very closely approximates the virtual temp
 //
-// 	http://amsglossary.allenpress.com/glossary/search?id=virtual-temperature1
+// http://glossary.ametsoc.org/wiki/Virtual_temperature
+// https://web.archive.org/web/*/http://amsglossary.allenpress.com/glossary/search?id=virtual-temperature1
 //				Tv = T*(1 + R/µ) / (1 + R)			T = ambient absolute temperature	Kelvin
 //												R = water vapor mixing ratio		dimensionless
 //				Tv ~= T*(1 + 0.61*R) 				µ = Rd/Rv = MWv/MWd ~= 0.622	dimensionless
