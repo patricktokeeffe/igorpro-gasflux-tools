@@ -1046,6 +1046,11 @@ End
 
 // returns estimate of record lag between two waves or NAN for error
 //
+// results are in fractional # of points; might be desireable if points are spaced
+// equidistant but most likely user should use BankerRound() or similar to get an integer
+// number of points. A positive value indicates baseWave is ahead of targetWave or, stated
+// another way the value returned should be added to targetWave's x-scale to align waves
+//
 // 2011.09-10 	initial implementation
 Function EstimateLag( baseWave, targetWave, keepResults )
 	wave baseWave		// reference timeseries
@@ -1121,7 +1126,7 @@ Function EstimateLag( baseWave, targetWave, keepResults )
 		SetAxis bottom ( xshift < 0 ? 2*xshift : -5), ( xshift > 0 ? 2*xshift : 5)
 		ModifyGraph grid(bottom)=1,nticks(bottom)=10,mode=4,mirror(bottom)=2,mirror(left)=2,nolabel(left)=1
 		Label left "Un-normalized cross-covariance"
-		Label bottom "Shift (# points) of "+nameT+" relative to "+nameB
+		Label bottom "Lag (# points) of "+nameT+" relative to "+nameB
 		TextBox/C/N=text0/A=LT "\\Z09Circular correlation\rmean removed"
 	endif
 	return xshift
