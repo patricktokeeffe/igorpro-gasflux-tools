@@ -1,0 +1,12 @@
+THE ONLY WAY TO SUCCESSFULLY INSERT IMAGES INTO IGOR PRO NOTEBOOKS IS:
+    Edit > Insert File...
+
+
+
+IntervalGradient-type0.png
+\left ( \frac{\partial M}{\partial z} \right )_{z_m} \cong \frac{M_2 - M_1}{\ln(z_2/z_1)z_m} \hspace{12} where \hspace{12} z_m=\sqrt{z_1 z_2}
+
+IntervalGradient-type1.png
+\left ( \frac{\partial M}{\partial z} \right )_{z_a} \cong \frac{M_2 - M_1}{z_2-z_1} \hspace{12} and \hspace{12} z_a=\frac{z_1+z_2}{2}
+
+

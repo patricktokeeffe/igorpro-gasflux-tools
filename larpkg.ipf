@@ -1868,6 +1868,75 @@ Function/WAVE IntervalFrictionVelocity( u_, v_, w_, tstamp, interval, aligned, [
 end
 
 
+// calculates simple gradient for use with gradient or aerodynamic method of calculating fluxes
+//
+// see discussion in Section 11.5.5 of `Arya. S. Pal. Introduction to Micrometeorology. 2nd Ed.
+//
+// effective height of gradient is output as V_height; this value will be different for a 
+// logarithmic vs. linear profile. Generally, linear profiles are inferior in all but very stable
+// conditions.
+//
+// if optional parameter `diffToo` is nonzero then wave of differences between M_1 and M_2 is
+// output as W_difference. This is useful for investigation and troubleshooting 
+//
+// 2014.01.23 	written
+Function/WAVE IntervalGradient( M_1, M_2, z1, z2, type, tstamp, interval, aligned [, bp, diffToo] )
+	wave M_1, M_2 		// data sources (velocity, temperature, concentration ...)
+	variable z1, z2 		// measurement heights; z1 is lower in elevation
+	variable type		// specify logarithmic (0) or linear (1) profile
+	wave/D tstamp		// double precision timestamp wave
+	variable interval 	// size of interval in seconds
+	variable aligned 	// nonzero to align intervals to midnight
+	wave bp				// optional wave of boundary points from IntervalBoundaries
+	variable diffToo 	// optional; nonzero to have difference wave output as W_M_diff
+	
+	if ( !SameNumRows(M_1, M_2) || !SameNumRows(M_1, tstamp) )
+		print "IntervalGradient: input waves had different lengths - aborting"
+		return NAN
+	elseif ( !WaveExists(bp) )
+		wave bp = IntervalBoundaries(tstamp, interval, aligned)
+	endif
+	if (z1 > z2)
+		print "IntervalGradient: invalid height order (z1 > z2) - reversing inputs"
+		wave temp = M_1
+		wave M_1 = M_2
+		wave M_2 = temp
+		WAVEclear temp
+		variable tmp = z1
+		z1 = z2
+		z2 = tmp
+	endif	
+	if (type < 0 || type > 1)
+		print "IntervalGradient: invalid profile type (", type, ") - defaulting to logarithmic"
+		type = 0
+	endif
+	variable oi, lo, hi, height, scaling
+	Make/FREE/N=(DimSize(bp,0)) wout
+	SetScale/P x, leftx(bp), deltax(bp), WaveUnits(bp, 0), wout
+	
+	if (type) // 1: linear
+		height = (z1 + z2)/2
+		scaling = (z2 - z1)
+	else // 0: logarithmic
+		height = SQRT(z1*z2)
+		scaling = LN(z2/z1) * height
+	endif
+	
+	wave m1_avg = IntervalMean(M_1, tstamp, interval, aligned, bp=bp)
+	wave m2_avg = IntervalMean(M_2, tstamp, interval, aligned, bp=bp)
+	Duplicate/FREE m1_avg, m_diff, m_grad
+	m_diff = (m2_avg - m1_avg)
+	m_grad = m_diff / scaling
+	
+	if (diffToo)
+		Duplicate/O m_diff, W_difference
+	endif
+	variable/G V_height = height
+	return m_grad
+end
+
+
+
 // assesses group of waves (list of wave refs) and determines maximum fraction of missing rows 
 // or rows containing NAN across the group; returns a ratio (0-1) representing missing fraction
 // 
