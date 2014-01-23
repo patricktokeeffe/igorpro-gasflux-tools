@@ -3909,11 +3909,13 @@ End
 // create free wave of wave refs on command line using {} like so:
 // 	ResampleXY( timestamp, {singlewave}, newRate )
 //
+// 2014.01.22	make setting of X-scale optional
 // 2011.09-10 	initial implementation
-Function ResampleXY( tstamp, wrefs , newRate )
+Function ResampleXY( tstamp, wrefs , newRate, [setScales] )
 	wave/D tstamp 			// double precision timestamp wave 
 	wave/WAVE wrefs 		// wave references to resample; do not include timestamp
 	variable newRate 			// new sample interval in seconds
+	variable setScales 		// non-zero to have output waves' X-scaling set
 	
 	variable srcpnts, destpnts, rndcol, loTimeOff, hiTimeOff, i
 	string yname, xname = NameOfWave(tstamp)+"_RS"
@@ -3947,8 +3949,10 @@ Function ResampleXY( tstamp, wrefs , newRate )
 		wave xwave = $xname
 		wave ywave = $yname
 		xwave = BankerRound( xwave[p], rndcol ) // even resampled, X-spacing isn't exact enough for FFT, etc -> round
-		SetScale d, 0, 0, "dat", xwave
-		SetScale/P x, xwave[0], (xwave[1] - xwave[0]), "dat", xwave, ywave
+		if (setScales)
+			SetScale d, 0, 0, "dat", xwave
+			SetScale/P x, xwave[0], (xwave[1] - xwave[0]), "dat", xwave, ywave
+		endif
 	endfor
 End
 
