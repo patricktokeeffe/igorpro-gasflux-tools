@@ -1718,13 +1718,9 @@ Function/WAVE IntervalECSensibleHeat( T_, w_, P_, Q_, tstamp, interval, aligned 
 	variable aligned 		// nonzero to start/stop on whole intervals
 	wave bp				// optional interval boundary points wave
 	
-	If ( !SameNumRows(T_, w_) || !SameNumRows(w_, tstamp) )
-		string nT, nw, nP, nQ
-		nT = NameOfWave(T_)
-		nw = NameOfWave(w_)
-		nP = NameOfWave(P_)
-		nQ = NameOfWave(Q_)
-		printf "IntervalECSensibleHeat: input waves (%s, %s, %s, %s) had different lengths - aborted\r", nT, nw, nP, nQ
+	Make/FREE/WAVE inputs = {T_, w_, P_, Q_, tstamp}
+	If ( !SameNumRowsW(inputs) )
+		print "IntervalECSensibleHeat: input waves had different lengths - aborted"
 		return NAN
 	elseif ( !WaveExists(bp) )
 		wave bp = IntervalBoundaries( tstamp, interval, aligned )
