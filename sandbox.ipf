@@ -1,4 +1,4 @@
-#If ( 0)							// 1 to compile; 0 for omit
+#If (0)							// 1 to compile; 0 for omit
 #pragma rtGlobals = 1				// Use modern global access method.
 
 Menu "Macros"
@@ -1907,344 +1907,344 @@ End
 ////////////////////////////////////////////   WAVE FUNCTIONS   /////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-////lar_concatDFs( folders [, savePath, checkTime] )
-////	folders 		wave containing datafolder references to operate on
-////
-//// optional parameters
-////	savePath	string of output datafolder path (based from root:)
-////	checkTime	boolean: non-zero verifies x-scale remains continuous across concatenation
-////	killSrc		boolean: non-zero deletes source datafolders after concatenation
-////
-//// returns 0 for success
-//// 
-//// Function combines waves of the same name from datafolders provided in list, concatenating in the order
-//// provided. Merged waves are dropped into root: unless an output path is specified via saveIn. Specifying a
-//// nonzero value for checkTime causes function to verify the x-scale remains continuous (ie rightx(wave1)==leftx(wave2))
-//Function lar_concatDFs( folders, [savePath, checkTime, killSrc])
-//	WAVE/DF folders 								// wave containing datafolder references to operate on
-//	string savePath 									// string containing full output path from root:
-//	variable checkTime 								// boolean: non-zero verifies x-scaling remains continuous 
-//	variable killSrc									// boolean: nonzero kills datafolders after appending
-//	
-//	variable i,j										// counters
-//	variable numLists 								// number of rows of concatenation lists
-//	variable numWaves								// number of waves found in each folder searched
-//	variable labelIndex								// for looking up by row labels
-//	variable timeOK									// boolean for checking time continuity
-//	string name										// unique name creator
-//	string wavesFound 								// searches for waves in each folder
-//	string thisDF										// holds full path to current datafolder location
-//	string thisList									// for analyzing concatenation lists
-//	DFREF saveDFR = GetDataFolderDFR()				// save reference to current spot
-//	
-//	// lar_print(1, "Starting lar_concatDFs(...) at "+time())	// startup message
-//	name = "Default settings loaded: "					// begin a default setting notice
-//	If (ParamIsDefault(savePath))						// if not provided
-//		savePath = ""									// blank for same directory
-//		name += "saving output to current directory \""+GetDataFolder(1)+"\"; " // add to msg
-//	else
-//		if ( cmpstr(savePath[0], ":") )					// if first char not a colon
-//			savePath = ":"+savePath						// append one
-//		endif
-//		savePath = RemoveEnding(savePath, ":")		// remove any trailing colons, if present
-//		savePath += ":"								// append one so we know its there
-//	endif
-//	If (ParamIsDefault(checkTime))						// if not specified
-//		// has default value of 0 
-//		name += "not verifying continuous time (x-scaling); " // add to msg
-//	endif
-//	if ( strlen(name) > 30 )								// if msgs were appended
-//		// lar_print(2, name)									// print default settings msg
-//	endif
-//	If (ParamIsDefault(killSrc))
-//		killSrc = 0
-//	endif
-//	
-//	name = UniqueName("wave", 1, 0)					// generate unique name for temp wave
-//	Make/T/N=0 $name								// create empty text wave
-//	WAVE/T concatLists = $name						// refer to
-//	
-//	// lar_print(2, "Building concatenation lists...")			// msg
-//	for (i=0; i<numpnts(folders); i+=1) 					// for each provided DFREF
-//		SetDataFolder folders[i] 							// move into datafolder
-//		wavesFound = waveList("*",";","") 					// grab list of waves
-//		numWaves = ItemsInList(wavesFound)				// how many waves were there?
-//		numLists = numpnts(concatLists)					// how many spots are there?
-//		thisDF = GetDataFolder(1) 						// grab string full path to this DF
-//		if (numWaves > 0)								// if found some waves in this folder
-//			// lar_print(3, ">\tIn DF "+thisDF+" found "+num2istr(numWaves)+" waves; list has "+num2istr(numLists)+" spots") // msg
-//			if (numWaves > numLists)							// if more waves were found than lists there are
-//				InsertPoints numLists, (numWaves-numLists), concatLists // add # of missing rows
-//				// lar_print(2, "\tAdded "+num2istr(numWaves-numLists)+" rows for newly found waves") // msg
-//				for (j=numLists; j<numpnts(concatLists); j+=1)			// for each newly created row 
-//					name = StringFromList(j, wavesFound)				// get wave's name
-//					SetDimLabel 0, j, $name, concatLists 				// set the label to wave's name
-//					// lar_print(3, "\tSet a new dimension label: "+name) 	// msg
-//				endfor
-//				numLists = numpnts(concatLists)					// re-evaulate total # of lists to grab new end index
-//			endif
-//			for (j=0; j<numWaves; j+=1)						// for each wave found
-//				name = StringFromList(j, wavesFound)				// look up its name
-//				labelIndex = FindDimLabel(concatLists,0,name)		// look up its row index
-//				if (labelIndex < 0)									// if not found
-//					InsertPoints numLists, 1, concatLists 				// add row at end
-//					SetDimLabel 0, numLists, $name, concatLists		// set new row's label to wave's name
-//					// lar_print(2, "\tAdded a row & dim label for newly found wave "+name) // msg
-//					numLists = numpnts(concatLists)					// recalcalate last index #
-//					j -= 1											// push counter backwards then
-//					continue											// skip remainder of loop to redo this row
-//				endif
-//				concatLists[FindDimLabel(concatLists,0,name)] += thisDF+name+";" // append full wave path to list
-//			endfor
-//			// lar_print(3, "\tFinished loading waves from "+thisDF+" into concatenation lists")
-//		endif	
-//	endfor
-//	
-//	SetDataFolder saveDFR 							// return to original datafolder
-//	if ( checkTime )									// if will check times
-//		// lar_print(2, "\tPerforming time (x-scale) continuity checks before concatenations") // msg
-//	else 											// if not 
-//		// lar_print(2, "\tPerforming concatenations without verifying time (x-scale) continuity") // msg
-//	endif
-//	for (i=0; i<numpnts(concatLists); i+=1)				// for each concatenation list built
-//		thisList = concatLists[i] 							// make local to loop for ease
-//		if ( checkTime ) 									// if supposed to verify continuous timing
-//			timeOK = 1										// assume true
-//			for (j=1; j<ItemsInList(thisList); j+=1)				// for each pair of waves in the list
-//				wave A = $StringFromList(j-1, thisList) 				// build ref to earlier
-//				wave B = $StringFromList(j, thisList)				// build ref to later
-//				if ( (rightx(A)!=leftx(B)) || (deltax(A)!=deltax(B)) )		// if discontinuous or diff timestep
-//					// lar_print(2, "*\tWaves "+GetWavesDataFolder(A,2)+" and "+GetWavesDataFolder(B,2)+" had discontinuous times and were not concatenated")
-//					timeOK = 0										// display msg, set false
-//					break											// leave j-for loop
-//				endif
-//			endfor
-//			if ( !timeOK )										// if a time discontinuity was found
-//				// lar_print(0, ">\tWaves of the name "+NameOfWave(A)+" were not concatenated because of time discontinuities.")
-//				continue											// skip remainder of i-for loop
-//			endif
-//		endif			
-//	
-//		if ( strlen(savePath) > 0 )					// if a path was given
-//			if ( !DataFolderExists(savePath) )			// if datafolder path is missing
-//				NewDataFolder/O $RemoveEnding(savePath, ":") // create it 
-//			endif
-//		endif
-//		name = PossiblyQuoteName(RemoveEnding(ParseFilePath(3, StringFromList(0, thisList), ":", 0, 0),";")) // look up wave name for this list
-//		Concatenate/NP/O thisList, $(savePath+name) // do concat operation
-//		// lar_print(3, "\tConcatenated waves of name "+name+" to wave "+savePath+name)
-//	endfor
-//	
-//	If (killSrc)
-//		for (i=0; i<numpnts(folders); i+=1)
-//			KillDataFolder folders[i]
-//		endfor
-//	Endif
-//	
-//	Killwaves/Z concatLists
-//	SetDataFolder saveDFR							// return user to original location
-//	// lar_print(1, "Finished concatenating across datafolders at "+time()) // msg
-//	return 0 											// signal success
-//End
+//lar_concatDFs( folders [, savePath, checkTime] )
+//	folders 		wave containing datafolder references to operate on
 //
-//// builds and displays concatDFsPanel
-//Function lar_concatDFsPanel() : Panel					// show in panel menu
-//	DoWindow/F concatDFsPanel							// attempt to bring to focus
-//	if (V_flag != 0)											// if exists
-//		return 0													// leave function
-//	endif
+// optional parameters
+//	savePath	string of output datafolder path (based from root:)
+//	checkTime	boolean: non-zero verifies x-scale remains continuous across concatenation
+//	killSrc		boolean: non-zero deletes source datafolders after concatenation
 //
-//	STRUCT lar_concatDFsPrefs prefs						// invoke preferences variable
-//	lar_concatDFsLoadPrefs(prefs)								// look up prefs
-//
-//	WAVE/T/Z dfList = $lar_getGlobalWRef("dfList", "concatDFs", 0) // create waves to hold listbox contents
-//	WAVE/Z dfListSel = $lar_getGlobalWRef("dfListSel", "concatDFs", 80)
-//	WAVE/T/Z concatList = $lar_getGlobalWRef("concatList", "concatDFs", 0) 
-//	WAVE/Z concatListSel = $lar_getGlobalWRef("concatListSel", "concatDFs", 80)
-//
-//	// build panel window
-//	NewPanel/W=(prefs.panel.left,prefs.panel.top,prefs.panel.right,prefs.panel.bottom)/K=1/N=concatDFsPanel as "Concatenate across datafolders"
-//	SetWindow concatDFsPanel, hook(phook)=lar_tools#lar_concatDFsPanelHook
-//	// add annotation
-//	SetDrawLayer UserBack
-//	SetDrawEnv fsize= 14
-//	DrawText 5,20,"Concatenate across datafolders"
-//	DrawText 12,46,"Select source folders"
-//	DrawText 11,270,"Concat list"
-//	// listbox of available data folders
-//	ListBox foldersLB,pos={7,49},size={260,193},mode= 4,listWave=dfList,selWave=dfListSel
-//	// listbox of selected data folders
-//	ListBox selectionLB,pos={7,271},size={261,154},mode=4,listWave=concatList,selWave=concatListSel
-//	// button to add folders to selection
-//	Button addBtn,pos={156,246},size={110,20},proc=lar_tools#lar_concatDFsBtnProc,title="Add selection to list"
-//	// button to remove folders from selection
-//	Button remBtn,pos={128,430},size={140,20},proc=lar_tools#lar_concatDFsBtnProc,title="Remove selection from list"
-//	// checkbox decides whether times are checked
-//	CheckBox checkTimeCB,pos={4,483},size={161,14},title="Check time (x-scale) continuity",value=prefs.checkTime
-//	CheckBox checkTimeCB,proc=lar_tools#lar_concatDFsCheckProc
-//	// entry for target directory
-//	SetVariable savepathSV,pos={6,459},size={264,16},bodyWidth=224,proc=lar_tools#lar_concatDFsSetVProc,title="Save in"
-//	SetVariable savepathSV,limits={-inf,inf,0},value=_STR:prefs.savePath
-//	// submit button
-//	Button submit,pos={179,481},size={90,20},proc=lar_tools#lar_concatDFsBtnProc,title="Concatenate",fStyle=1
-//	
-//	lar_populateLB(dfList, dfListSel, 4) 			// populate available folders list with datafolders
-//End	
-//// preferences structure for concatDFsPanel
-//Structure lar_concatDFsPrefs
-//	uint32			version						// YYYYMMDD
-//	STRUCT Rect 	panel						// left, top, right, bottom
-//	char 			savePath[400]//MAXCMDLEN] 	// strings stored as character arrays
-//	uchar 			checkTime					// booleans fit into a char (1 byte)
-//EndStructure
-//// restores preferences for concatDFsPanel
-//Static Function lar_concatDFsLoadPrefs(prefs, [reset])
-//	STRUCT lar_concatDFsPrefs &prefs
-//	variable reset							// optional: nonzero to reset to defaults
-//	variable currentVersion = 20101015		// YYYYMMDD date struct last changed
-//	
-//	LoadPackagePreferences ksPackageName, ksPrefsFileName, kID_concatDFs, prefs
-//	if ( V_flag != 0 || V_bytesRead == 0 || prefs.version != currentVersion || reset ) // if prefs no good
-//		prefs.version = currentVersion			// fill them with this version
-//		prefs.panel.left = 101					// dot notion to access substructure
-//		prefs.panel.top = 90
-//		prefs.panel.right = 375
-//		prefs.panel.bottom = 597
-//		prefs.savePath = ":mergedDFs" 		// default name
-//		prefs.checkTime = 1					// default to on
-//		
-//		lar_concatDFsSavePrefs(prefs)			// create new prefs file
-//	endif
-//	return 0
-//End
-//// saves preferences for textToIgorTime function
-//Static Function lar_concatDFsSavePrefs(prefs)
-//	STRUCT lar_concatDFsPrefs &prefs
-//	SavePackagePreferences ksPackageName, ksPrefsFileName, kID_concatDFs, prefs
-//	return (V_flag)
-//End
-//// resets preferences to default values
-//Static Function lar_concatDFsResetPrefs()
-//	STRUCT lar_concatDFsPrefs prefs
-//	// lar_print(1, "Panel preferences reset for Concatenate across Datafolders")
-//	return lar_concatDFsLoadPrefs(prefs, reset=1)
-//End
-//// handles preferences concerning panel appearance, position, etc
-//Static Function lar_concatDFsPanelHook(s)
-//	STRUCT WMWinHookStruct &s 				// caller passed by ref
-//	switch (s.eventCode)							// what happened?
-//		case 0:		 								// activate
-//			wave/T/Z dfList = $lar_getGlobalWRef("dfList", "concatDFs", 0) // refer to wave list
-//			wave/Z dfListSel = $lar_getGlobalWRef("dfListSel", "concatDFs", 80) // refer to selection list
-//			lar_populateLB(dfList, dfListSel, 4)				// refresh listbox of datafolders
-//		case 6:										// resized
-//		case 12:										// moved
-//			STRUCT lar_concatDFsPrefs prefs				// invoke function preferences
-//			lar_concatDFsLoadPrefs(prefs)					// look up current prefs
-//			GetWindow concatDFsPanel wsize				// grab new position info
-//			variable scale = ScreenResolution / 72 			// convert points to device units
-//			prefs.panel.left = V_left * scale					// save to prefs
-//			prefs.panel.top = V_top * scale
-//			prefs.panel.right = V_right * scale
-//			prefs.panel.bottom = V_bottom * scale
-//			lar_concatDFsSavePrefs(prefs)					// save prefs
-//			break
-//	endswitch
-//	return 0
-//End
-//// handles all buttons on concatDFsPanel
-//Static Function lar_concatDFsBtnProc(ba)  : ButtonControl   
-//	STRUCT WMButtonAction &ba				// button structure passed in
-//	switch( ba.eventCode )					// depending on event code
-//		case 2: 									// mouse up
-//			STRUCT lar_concatDFsPrefs prefs			// invoke prefs structure
-//			lar_concatDFsLoadPrefs(prefs)				// populate them
-//			variable i									// counter
-//			wave/T dfList = $lar_getGlobalWRef("dfList", "concatDFs", 0) // build refs to listbox waves
-//			wave dfListSel = $lar_getGlobalWRef("dfListSel", "concatDFs", 80)
-//			wave/T concatList = $lar_getGlobalWRef("concatList", "concatDFs", 0)
-//			wave concatListSel = $lar_getGlobalWRef("concatListSel", "concatDFs", 80)
-//			strswitch( ba.ctrlName )				// depending on sender button
-//				case "addBtn": 						// add selection to list
-//					for (i=0; i<numpnts(dfList); i+=1) 		// for each point in source list
-//						if ( dfListSel[i] & 0x01 )				// if currently selected
-//							InsertPoints numpnts(concatList), 1, concatList, concatListSel // add 1 row to end of waves
-//							concatList[numpnts(concatList)-1] = dfList[i] // add name to list
-//						endif
-//					endfor
-//					break
-//				case "remBtn": 						// remove selection from list
-//					for (i=0; i<numpnts(concatList); i+=1)	// for each point in concat list
-//						if ( concatListSel[i] & 0x01 )			// if currently selected
-//							DeletePoints i, 1, concatList, concatListSel // remove this row from waves
-//							i -= 1								// scoot counter back since rows shifted
-//						endif
-//					endfor
-//					break
-//				case "submit":						// submit button
-//					if ( numpnts(concatList) == 0 )			// if no waves are in listbox
-//						// lar_print(0, "No datafolders were specified in the concatenation list")
-//						return -1								// quit
-//					else
-//						string name = UniqueName("wave", 1, 0) // create unique wave for DF refs
-//						Make/O/DF/N=(numpnts(concatList)) $name // create temp wave
-//						wave/DF folderList = $name			// refer to it
-//						for (i=0; i<numpnts(concatList); i+=1)	// for each point in concat list
-//							DFREF tmpRef = $concatList[i] 		// convert string to ref 
-//							folderList[i] = tmpRef					// add to list
-//						endfor
-//						
-//						//print "checktime: ",prefs.checktime
-//						lar_concatDFs(folderList, savePath=prefs.savePath, checkTime=prefs.checkTime) // call function
-//						Killwaves/Z folderList					// remove after done
-//					endif
-//					break
-//			endswitch
-//			break									// end case mouse up
-//	endswitch								// end event code switch
-//	return 0									// return success
-//End
-//// handles all checkboxes on concatDFsPanel
-//Static Function lar_concatDFsCheckProc(ca) : CheckBoxControl
-//	STRUCT WMCheckboxAction &ca		// checkbox structure passed in
-//	switch (ca.eventCode)					// what happened to it?
-//		case 2:								// mouse up event
-//			STRUCT lar_concatDFsPrefs prefs		// create prefs structure
-//			lar_concatDFsLoadPrefs(prefs)			// poplate prefs
-//			strswitch (ca.ctrlName)				// based on which checkbox
-//				case "checkTimeCB":					// verify continuous time in x-scaling?
-//					prefs.checkTime = ca.checked 		// save to prefs
-//					print "checktime: ",prefs.checkTime
-//					break
-//			endswitch
-//			lar_concatDFsSavePrefs(prefs)			// store prefs
-//			break
-//	endswitch
-//	return 0
-//End
-//// handles all variable input boxes on concatDFsPanel 
-//Static Function lar_concatDFsSetVProc(sv) : SetVariableControl
-//	STRUCT WMSetVariableAction &sv				// setvariable structure passed in
-//	switch (sv.eventCode)							// switch based on what happened
-//		case 1:										// mouse up
-//		case 2: 										// enter key
-//		case 3:										// live update
-//		case 6:										// value changed by dependency formula
-//			STRUCT lar_concatDFsPrefs prefs				// create prefs structure
-//			lar_concatDFsLoadPrefs(prefs)					// populate 
-//			strswitch (sv.ctrlName)						// depending on which control sent
-//				case "savepathSV":							// save in location
-//					//SVAR gSavePath = $lar_getGlobalSRef("savePath", "concatDFs", prefs.savePath) // global ref
-//					//gSavePath = lar_cleanupPath( gSavePath )		// format appropriately
-//					//prefs.savePath = gSavePath 						// store to prefs
-//					prefs.savePath = cleanupPath( sv.sval ) 	// reformat & save string entry 
-//					break
-//			endswitch
-//			lar_concatDFsSavePrefs(prefs)					// store prefs
-//			break
-//	endswitch
-//	return 0
-//End
+// returns 0 for success
+// 
+// Function combines waves of the same name from datafolders provided in list, concatenating in the order
+// provided. Merged waves are dropped into root: unless an output path is specified via saveIn. Specifying a
+// nonzero value for checkTime causes function to verify the x-scale remains continuous (ie rightx(wave1)==leftx(wave2))
+Function lar_concatDFs( folders, [savePath, checkTime, killSrc])
+	WAVE/DF folders 								// wave containing datafolder references to operate on
+	string savePath 									// string containing full output path from root:
+	variable checkTime 								// boolean: non-zero verifies x-scaling remains continuous 
+	variable killSrc									// boolean: nonzero kills datafolders after appending
+	
+	variable i,j										// counters
+	variable numLists 								// number of rows of concatenation lists
+	variable numWaves								// number of waves found in each folder searched
+	variable labelIndex								// for looking up by row labels
+	variable timeOK									// boolean for checking time continuity
+	string name										// unique name creator
+	string wavesFound 								// searches for waves in each folder
+	string thisDF										// holds full path to current datafolder location
+	string thisList									// for analyzing concatenation lists
+	DFREF saveDFR = GetDataFolderDFR()				// save reference to current spot
+	
+	// lar_print(1, "Starting lar_concatDFs(...) at "+time())	// startup message
+	name = "Default settings loaded: "					// begin a default setting notice
+	If (ParamIsDefault(savePath))						// if not provided
+		savePath = ""									// blank for same directory
+		name += "saving output to current directory \""+GetDataFolder(1)+"\"; " // add to msg
+	else
+		if ( cmpstr(savePath[0], ":") )					// if first char not a colon
+			savePath = ":"+savePath						// append one
+		endif
+		savePath = RemoveEnding(savePath, ":")		// remove any trailing colons, if present
+		savePath += ":"								// append one so we know its there
+	endif
+	If (ParamIsDefault(checkTime))						// if not specified
+		// has default value of 0 
+		name += "not verifying continuous time (x-scaling); " // add to msg
+	endif
+	if ( strlen(name) > 30 )								// if msgs were appended
+		// lar_print(2, name)									// print default settings msg
+	endif
+	If (ParamIsDefault(killSrc))
+		killSrc = 0
+	endif
+	
+	name = UniqueName("wave", 1, 0)					// generate unique name for temp wave
+	Make/T/N=0 $name								// create empty text wave
+	WAVE/T concatLists = $name						// refer to
+	
+	// lar_print(2, "Building concatenation lists...")			// msg
+	for (i=0; i<numpnts(folders); i+=1) 					// for each provided DFREF
+		SetDataFolder folders[i] 							// move into datafolder
+		wavesFound = waveList("*",";","") 					// grab list of waves
+		numWaves = ItemsInList(wavesFound)				// how many waves were there?
+		numLists = numpnts(concatLists)					// how many spots are there?
+		thisDF = GetDataFolder(1) 						// grab string full path to this DF
+		if (numWaves > 0)								// if found some waves in this folder
+			// lar_print(3, ">\tIn DF "+thisDF+" found "+num2istr(numWaves)+" waves; list has "+num2istr(numLists)+" spots") // msg
+			if (numWaves > numLists)							// if more waves were found than lists there are
+				InsertPoints numLists, (numWaves-numLists), concatLists // add # of missing rows
+				// lar_print(2, "\tAdded "+num2istr(numWaves-numLists)+" rows for newly found waves") // msg
+				for (j=numLists; j<numpnts(concatLists); j+=1)			// for each newly created row 
+					name = StringFromList(j, wavesFound)				// get wave's name
+					SetDimLabel 0, j, $name, concatLists 				// set the label to wave's name
+					// lar_print(3, "\tSet a new dimension label: "+name) 	// msg
+				endfor
+				numLists = numpnts(concatLists)					// re-evaulate total # of lists to grab new end index
+			endif
+			for (j=0; j<numWaves; j+=1)						// for each wave found
+				name = StringFromList(j, wavesFound)				// look up its name
+				labelIndex = FindDimLabel(concatLists,0,name)		// look up its row index
+				if (labelIndex < 0)									// if not found
+					InsertPoints numLists, 1, concatLists 				// add row at end
+					SetDimLabel 0, numLists, $name, concatLists		// set new row's label to wave's name
+					// lar_print(2, "\tAdded a row & dim label for newly found wave "+name) // msg
+					numLists = numpnts(concatLists)					// recalcalate last index #
+					j -= 1											// push counter backwards then
+					continue											// skip remainder of loop to redo this row
+				endif
+				concatLists[FindDimLabel(concatLists,0,name)] += thisDF+name+";" // append full wave path to list
+			endfor
+			// lar_print(3, "\tFinished loading waves from "+thisDF+" into concatenation lists")
+		endif	
+	endfor
+	
+	SetDataFolder saveDFR 							// return to original datafolder
+	if ( checkTime )									// if will check times
+		// lar_print(2, "\tPerforming time (x-scale) continuity checks before concatenations") // msg
+	else 											// if not 
+		// lar_print(2, "\tPerforming concatenations without verifying time (x-scale) continuity") // msg
+	endif
+	for (i=0; i<numpnts(concatLists); i+=1)				// for each concatenation list built
+		thisList = concatLists[i] 							// make local to loop for ease
+		if ( checkTime ) 									// if supposed to verify continuous timing
+			timeOK = 1										// assume true
+			for (j=1; j<ItemsInList(thisList); j+=1)				// for each pair of waves in the list
+				wave A = $StringFromList(j-1, thisList) 				// build ref to earlier
+				wave B = $StringFromList(j, thisList)				// build ref to later
+				if ( (rightx(A)!=leftx(B)) || (deltax(A)!=deltax(B)) )		// if discontinuous or diff timestep
+					// lar_print(2, "*\tWaves "+GetWavesDataFolder(A,2)+" and "+GetWavesDataFolder(B,2)+" had discontinuous times and were not concatenated")
+					timeOK = 0										// display msg, set false
+					break											// leave j-for loop
+				endif
+			endfor
+			if ( !timeOK )										// if a time discontinuity was found
+				// lar_print(0, ">\tWaves of the name "+NameOfWave(A)+" were not concatenated because of time discontinuities.")
+				continue											// skip remainder of i-for loop
+			endif
+		endif			
+	
+		if ( strlen(savePath) > 0 )					// if a path was given
+			if ( !DataFolderExists(savePath) )			// if datafolder path is missing
+				NewDataFolder/O $RemoveEnding(savePath, ":") // create it 
+			endif
+		endif
+		name = PossiblyQuoteName(RemoveEnding(ParseFilePath(3, StringFromList(0, thisList), ":", 0, 0),";")) // look up wave name for this list
+		Concatenate/NP/O thisList, $(savePath+name) // do concat operation
+		// lar_print(3, "\tConcatenated waves of name "+name+" to wave "+savePath+name)
+	endfor
+	
+	If (killSrc)
+		for (i=0; i<numpnts(folders); i+=1)
+			KillDataFolder folders[i]
+		endfor
+	Endif
+	
+	Killwaves/Z concatLists
+	SetDataFolder saveDFR							// return user to original location
+	// lar_print(1, "Finished concatenating across datafolders at "+time()) // msg
+	return 0 											// signal success
+End
+
+// builds and displays concatDFsPanel
+Function lar_concatDFsPanel() : Panel					// show in panel menu
+	DoWindow/F concatDFsPanel							// attempt to bring to focus
+	if (V_flag != 0)											// if exists
+		return 0													// leave function
+	endif
+
+	STRUCT lar_concatDFsPrefs prefs						// invoke preferences variable
+	lar_concatDFsLoadPrefs(prefs)								// look up prefs
+
+	WAVE/T/Z dfList = $lar_getGlobalWRef("dfList", "concatDFs", 0) // create waves to hold listbox contents
+	WAVE/Z dfListSel = $lar_getGlobalWRef("dfListSel", "concatDFs", 80)
+	WAVE/T/Z concatList = $lar_getGlobalWRef("concatList", "concatDFs", 0) 
+	WAVE/Z concatListSel = $lar_getGlobalWRef("concatListSel", "concatDFs", 80)
+
+	// build panel window
+	NewPanel/W=(prefs.panel.left,prefs.panel.top,prefs.panel.right,prefs.panel.bottom)/K=1/N=concatDFsPanel as "Concatenate across datafolders"
+	SetWindow concatDFsPanel, hook(phook)=lar_tools#lar_concatDFsPanelHook
+	// add annotation
+	SetDrawLayer UserBack
+	SetDrawEnv fsize= 14
+	DrawText 5,20,"Concatenate across datafolders"
+	DrawText 12,46,"Select source folders"
+	DrawText 11,270,"Concat list"
+	// listbox of available data folders
+	ListBox foldersLB,pos={7,49},size={260,193},mode= 4,listWave=dfList,selWave=dfListSel
+	// listbox of selected data folders
+	ListBox selectionLB,pos={7,271},size={261,154},mode=4,listWave=concatList,selWave=concatListSel
+	// button to add folders to selection
+	Button addBtn,pos={156,246},size={110,20},proc=lar_tools#lar_concatDFsBtnProc,title="Add selection to list"
+	// button to remove folders from selection
+	Button remBtn,pos={128,430},size={140,20},proc=lar_tools#lar_concatDFsBtnProc,title="Remove selection from list"
+	// checkbox decides whether times are checked
+	CheckBox checkTimeCB,pos={4,483},size={161,14},title="Check time (x-scale) continuity",value=prefs.checkTime
+	CheckBox checkTimeCB,proc=lar_tools#lar_concatDFsCheckProc
+	// entry for target directory
+	SetVariable savepathSV,pos={6,459},size={264,16},bodyWidth=224,proc=lar_tools#lar_concatDFsSetVProc,title="Save in"
+	SetVariable savepathSV,limits={-inf,inf,0},value=_STR:prefs.savePath
+	// submit button
+	Button submit,pos={179,481},size={90,20},proc=lar_tools#lar_concatDFsBtnProc,title="Concatenate",fStyle=1
+	
+	lar_populateLB(dfList, dfListSel, 4) 			// populate available folders list with datafolders
+End	
+// preferences structure for concatDFsPanel
+Structure lar_concatDFsPrefs
+	uint32			version						// YYYYMMDD
+	STRUCT Rect 	panel						// left, top, right, bottom
+	char 			savePath[400]//MAXCMDLEN] 	// strings stored as character arrays
+	uchar 			checkTime					// booleans fit into a char (1 byte)
+EndStructure
+// restores preferences for concatDFsPanel
+Static Function lar_concatDFsLoadPrefs(prefs, [reset])
+	STRUCT lar_concatDFsPrefs &prefs
+	variable reset							// optional: nonzero to reset to defaults
+	variable currentVersion = 20101015		// YYYYMMDD date struct last changed
+	
+	LoadPackagePreferences ksPackageName, ksPrefsFileName, kID_concatDFs, prefs
+	if ( V_flag != 0 || V_bytesRead == 0 || prefs.version != currentVersion || reset ) // if prefs no good
+		prefs.version = currentVersion			// fill them with this version
+		prefs.panel.left = 101					// dot notion to access substructure
+		prefs.panel.top = 90
+		prefs.panel.right = 375
+		prefs.panel.bottom = 597
+		prefs.savePath = ":mergedDFs" 		// default name
+		prefs.checkTime = 1					// default to on
+		
+		lar_concatDFsSavePrefs(prefs)			// create new prefs file
+	endif
+	return 0
+End
+// saves preferences for textToIgorTime function
+Static Function lar_concatDFsSavePrefs(prefs)
+	STRUCT lar_concatDFsPrefs &prefs
+	SavePackagePreferences ksPackageName, ksPrefsFileName, kID_concatDFs, prefs
+	return (V_flag)
+End
+// resets preferences to default values
+Static Function lar_concatDFsResetPrefs()
+	STRUCT lar_concatDFsPrefs prefs
+	// lar_print(1, "Panel preferences reset for Concatenate across Datafolders")
+	return lar_concatDFsLoadPrefs(prefs, reset=1)
+End
+// handles preferences concerning panel appearance, position, etc
+Static Function lar_concatDFsPanelHook(s)
+	STRUCT WMWinHookStruct &s 				// caller passed by ref
+	switch (s.eventCode)							// what happened?
+		case 0:		 								// activate
+			wave/T/Z dfList = $lar_getGlobalWRef("dfList", "concatDFs", 0) // refer to wave list
+			wave/Z dfListSel = $lar_getGlobalWRef("dfListSel", "concatDFs", 80) // refer to selection list
+			lar_populateLB(dfList, dfListSel, 4)				// refresh listbox of datafolders
+		case 6:										// resized
+		case 12:										// moved
+			STRUCT lar_concatDFsPrefs prefs				// invoke function preferences
+			lar_concatDFsLoadPrefs(prefs)					// look up current prefs
+			GetWindow concatDFsPanel wsize				// grab new position info
+			variable scale = ScreenResolution / 72 			// convert points to device units
+			prefs.panel.left = V_left * scale					// save to prefs
+			prefs.panel.top = V_top * scale
+			prefs.panel.right = V_right * scale
+			prefs.panel.bottom = V_bottom * scale
+			lar_concatDFsSavePrefs(prefs)					// save prefs
+			break
+	endswitch
+	return 0
+End
+// handles all buttons on concatDFsPanel
+Static Function lar_concatDFsBtnProc(ba)  : ButtonControl   
+	STRUCT WMButtonAction &ba				// button structure passed in
+	switch( ba.eventCode )					// depending on event code
+		case 2: 									// mouse up
+			STRUCT lar_concatDFsPrefs prefs			// invoke prefs structure
+			lar_concatDFsLoadPrefs(prefs)				// populate them
+			variable i									// counter
+			wave/T dfList = $lar_getGlobalWRef("dfList", "concatDFs", 0) // build refs to listbox waves
+			wave dfListSel = $lar_getGlobalWRef("dfListSel", "concatDFs", 80)
+			wave/T concatList = $lar_getGlobalWRef("concatList", "concatDFs", 0)
+			wave concatListSel = $lar_getGlobalWRef("concatListSel", "concatDFs", 80)
+			strswitch( ba.ctrlName )				// depending on sender button
+				case "addBtn": 						// add selection to list
+					for (i=0; i<numpnts(dfList); i+=1) 		// for each point in source list
+						if ( dfListSel[i] & 0x01 )				// if currently selected
+							InsertPoints numpnts(concatList), 1, concatList, concatListSel // add 1 row to end of waves
+							concatList[numpnts(concatList)-1] = dfList[i] // add name to list
+						endif
+					endfor
+					break
+				case "remBtn": 						// remove selection from list
+					for (i=0; i<numpnts(concatList); i+=1)	// for each point in concat list
+						if ( concatListSel[i] & 0x01 )			// if currently selected
+							DeletePoints i, 1, concatList, concatListSel // remove this row from waves
+							i -= 1								// scoot counter back since rows shifted
+						endif
+					endfor
+					break
+				case "submit":						// submit button
+					if ( numpnts(concatList) == 0 )			// if no waves are in listbox
+						// lar_print(0, "No datafolders were specified in the concatenation list")
+						return -1								// quit
+					else
+						string name = UniqueName("wave", 1, 0) // create unique wave for DF refs
+						Make/O/DF/N=(numpnts(concatList)) $name // create temp wave
+						wave/DF folderList = $name			// refer to it
+						for (i=0; i<numpnts(concatList); i+=1)	// for each point in concat list
+							DFREF tmpRef = $concatList[i] 		// convert string to ref 
+							folderList[i] = tmpRef					// add to list
+						endfor
+						
+						//print "checktime: ",prefs.checktime
+						lar_concatDFs(folderList, savePath=prefs.savePath, checkTime=prefs.checkTime) // call function
+						Killwaves/Z folderList					// remove after done
+					endif
+					break
+			endswitch
+			break									// end case mouse up
+	endswitch								// end event code switch
+	return 0									// return success
+End
+// handles all checkboxes on concatDFsPanel
+Static Function lar_concatDFsCheckProc(ca) : CheckBoxControl
+	STRUCT WMCheckboxAction &ca		// checkbox structure passed in
+	switch (ca.eventCode)					// what happened to it?
+		case 2:								// mouse up event
+			STRUCT lar_concatDFsPrefs prefs		// create prefs structure
+			lar_concatDFsLoadPrefs(prefs)			// poplate prefs
+			strswitch (ca.ctrlName)				// based on which checkbox
+				case "checkTimeCB":					// verify continuous time in x-scaling?
+					prefs.checkTime = ca.checked 		// save to prefs
+					print "checktime: ",prefs.checkTime
+					break
+			endswitch
+			lar_concatDFsSavePrefs(prefs)			// store prefs
+			break
+	endswitch
+	return 0
+End
+// handles all variable input boxes on concatDFsPanel 
+Static Function lar_concatDFsSetVProc(sv) : SetVariableControl
+	STRUCT WMSetVariableAction &sv				// setvariable structure passed in
+	switch (sv.eventCode)							// switch based on what happened
+		case 1:										// mouse up
+		case 2: 										// enter key
+		case 3:										// live update
+		case 6:										// value changed by dependency formula
+			STRUCT lar_concatDFsPrefs prefs				// create prefs structure
+			lar_concatDFsLoadPrefs(prefs)					// populate 
+			strswitch (sv.ctrlName)						// depending on which control sent
+				case "savepathSV":							// save in location
+					//SVAR gSavePath = $lar_getGlobalSRef("savePath", "concatDFs", prefs.savePath) // global ref
+					//gSavePath = lar_cleanupPath( gSavePath )		// format appropriately
+					//prefs.savePath = gSavePath 						// store to prefs
+					prefs.savePath = cleanupPath( sv.sval ) 	// reformat & save string entry 
+					break
+			endswitch
+			lar_concatDFsSavePrefs(prefs)					// store prefs
+			break
+	endswitch
+	return 0
+End
 
 
 
