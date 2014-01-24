@@ -2,6 +2,8 @@ THE ONLY WAY TO SUCCESSFULLY INSERT IMAGES INTO IGOR PRO NOTEBOOKS IS:
     Edit > Insert File...
 
 
+Cov.png
+Cov(X, Y)=\overline{X \cdot Y} - \overline{X} \cdot \overline{Y}
 
 IntervalGradient-type0.png
 \left ( \frac{\partial M}{\partial z} \right )_{z_m} \cong \frac{M_2 - M_1}{\ln(z_2/z_1)z_m} \hspace{12} where \hspace{12} z_m=\sqrt{z_1 z_2}

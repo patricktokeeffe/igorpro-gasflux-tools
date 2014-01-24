@@ -15,6 +15,7 @@ Enhancements:
 Bug fixes:
 - Fix `Cov` so it returns NAN if source waves are multidimensional instead of
   just printing error and continuing
+- Replace formula for `Cov` in help file with correctly rendered version
 
 
 
