@@ -5416,7 +5416,7 @@ End
 
 ////////////////////////////////		ListFilesIn_Panel  	\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 // 2011.10.27 	initial working version
-StrConstant ksListFilesInPanelPrefsLoc = "root:Packages:ART:ListFilesInPanel"
+StrConstant ksListFilesInPanelPrefsLoc = "root:Packages:gasflux:ListFilesInPanel"
 StrConstant ksListFilesInWinName = "ListFilesInPanel"
 
 // creates GUI panel for ListFilesIn(...) and returns names of panel window
@@ -5802,7 +5802,7 @@ End
 
 ////////////////////////////////		LoadLGR_Panel  		\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 // 2011.10.28 	initial working version
-StrConstant ksLoadLGRPanelPrefsLoc = "root:Packages:ART:LoadLGRPanel"
+StrConstant ksLoadLGRPanelPrefsLoc = "root:Packages:gasflux:LoadLGRPanel"
 StrConstant ksLoadLGRWinName = "LoadLGRPanel0"
 
 // builds GUI panel for LoadLGR(...) and returns name of panel
@@ -6427,7 +6427,7 @@ End
 ///////////////////////// PromptedLoadCSI \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 Function PromptedLoadCSI( [type] )
 	variable type
-	string fileList, prefpath = "root:Packages:ART:PromptedLoadCSI:"
+	string fileList, prefpath = "root:Packages:gasflux:PromptedLoadCSI:"
 	variable option
 	DFREF prefs = NewDataFolderX(prefpath)
 	
