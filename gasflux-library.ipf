@@ -4165,11 +4165,12 @@ end
 //	Review. Vol 108, 1046-1053. 
 //		Eqn 10: 		es(T) = 6.112*exp( (17.67*T) / (T+243.5) ) 		T = ambient temp, Celcius
 //
+// 2015.07.15		FIX: correct second reference to T_, was T
 // 2011.11.08 	written
 Function SatVP( T_ )
 	variable T_		// ambient temp. 			Celcius
 	
-	return 6.112*exp( (17.67*T_) / (T+243.5) ) 	// mbar
+	return 6.112*exp( (17.67*T_) / (T_+243.5) ) 	// mbar
 End
 
 
